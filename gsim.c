@@ -6,13 +6,26 @@
 /*   By: tom <tom@student.codam.nl>                   +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/08/04 17:19:32 by tom           #+#    #+#                 */
-/*   Updated: 2021/08/04 19:03:16 by tom           ########   odam.nl         */
+/*   Updated: 2021/08/04 19:18:18 by tom           ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <stdio.h>
 #include <stdlib.h>
 
+int foundZ = 0;
+int lineHasZ(char *line)
+{
+	int i = 0;
+
+	while(line[i] != 0)
+	{
+		if(line[i] == 'Z')
+			return(1);
+		i++;	
+	}
+	return (0);	
+}
 char *cleanGcodeLine(char *line , char ret[100])
 {
 	int		i;
@@ -31,7 +44,16 @@ char *cleanGcodeLine(char *line , char ret[100])
 			line++;
 		while(*line != '.' && *line != ' ')
 			ret[i++] = *line++;
-		ret[i] = 0;	
+		
+		if(lineHasZ(line))
+		{
+			while(*line != 'Z')
+				line++;
+			while(*line != ' ' && *line != 0)
+			ret[i++] = *line++;
+			foundZ++;
+		}
+		ret[i] = 0;
 		return (ret);		
 	}
 	return("notneeded");
@@ -48,10 +70,11 @@ int main()
 	{
 		while (fgets(line, sizeof(line), file))
 		{
-			printf("%s\n", cleanGcodeLine(line, ret));
+			if(lineHasZ(cleanGcodeLine(line, ret)))
+				printf("%s\n", cleanGcodeLine(line, ret));
 			if(strcmp(cleanGcodeLine(line,ret), "X0Y220") == 0)
 				break;
 		}
 	}
-	printf("reach");
+	printf("z %d\n", foundZ);
 }
