@@ -6,14 +6,23 @@
 /*   By: tom <tom@student.codam.nl>                   +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/08/04 17:19:32 by tom           #+#    #+#                 */
-/*   Updated: 2021/08/04 19:18:18 by tom           ########   odam.nl         */
+/*   Updated: 2021/08/05 01:42:33 by tom           ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <stdio.h>
 #include <stdlib.h>
 
+char printResult[200][200][200]; 
+
+typedef struct point {
+	int x;
+	int y;
+}point;
+
 int foundZ = 0;
+
+
 int lineHasZ(char *line)
 {
 	int i = 0;
@@ -37,7 +46,7 @@ char *cleanGcodeLine(char *line , char ret[100])
 			line++;
 		line ++;	
 		if(!(*line >= '0' && *line <= '9'))
-			return("notneeded");	
+			return(0);	
 		while(*line != '.' && *line != ' ')
 			ret[i++] = *line++;
 		while(*line != 'Y')
@@ -56,8 +65,25 @@ char *cleanGcodeLine(char *line , char ret[100])
 		ret[i] = 0;
 		return (ret);		
 	}
-	return("notneeded");
+	return(0);
 			
+}
+
+void putPointsIntoArray(char *line, int z)
+{
+	int i = 0;
+	char x[5] = " ";
+	char y[5] = " ";
+	
+	while(*line != 'Y')
+		x[i++] = *line++;
+	x[i]= 0;	
+	line++;
+	while(*line)
+		y[i++] = *line++;
+	y[i] = 0;	
+	printf("x %s y %s ", x, y);
+	printResult[z][atoi(x)][atoi(y)] = 'X';
 }
 int main() 
 {
@@ -66,14 +92,21 @@ int main()
 	int index = 0;
 	char **modell;
 	char ret[100];
+	point currentPoint;
+	int i = 0;
+
 	if (file != NULL)
 	{
-		while (fgets(line, sizeof(line), file))
+		while (fgets(line, sizeof(line), file) )
 		{
-			if(lineHasZ(cleanGcodeLine(line, ret)))
-				printf("%s\n", cleanGcodeLine(line, ret));
-			if(strcmp(cleanGcodeLine(line,ret), "X0Y220") == 0)
-				break;
+
+			i++;
+			 
+			
+				printf(cleanGcodeLine(line, ret));
+				//putPointsIntoArray(cleanGcodeLine(line, ret), 0);
+				printf("\n");
+			
 		}
 	}
 	printf("z %d\n", foundZ);
