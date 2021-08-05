@@ -18,7 +18,16 @@ char printResult[200][200][200];
 typedef struct point {
 	int x;
 	int y;
-}point;
+}	point;
+
+typedef struct agent {
+	int x;
+	int y;
+	int z;
+	int mode;
+	int speed;
+	int flow;
+}	agent;
 
 int foundZ = 0;
 
@@ -35,38 +44,60 @@ int lineHasZ(char *line)
 	}
 	return (0);	
 }
-char *cleanGcodeLine(char *line , char ret[100])
-{
-	int		i;
 
-	i = 0;
+int	axisReader(char axis, agent *printer, char *line)
+{
+	int i = 0;
+	char	*command = malloc(5);
+
+	while(*line != '.' && *line != ' ')
+		command[i++] = *line++;
+	command[i] = 0;
+	if (axis == 'x')
+		printer->x = atoi(command);
+	else if (axis == 'y')
+		printer->y = atoi(command);
+	else if (axis == 'z')
+		printer->z = atoi(command);
+	free(command);
+}
+
+int	cleanGcodeLine(char *line, agent *printer)
+{
 	if (line[0] == 'G' && (line[1] == '0' || line[1] == '1'))
 	{
+		//mode reading
+		(printer->mode) = line[1] - '0';
+		//x reading
 		while(*line != 'X')
 			line++;
-		line ++;	
+		line ++;
 		if(!(*line >= '0' && *line <= '9'))
 			return(0);	
-		while(*line != '.' && *line != ' ')
-			ret[i++] = *line++;
+		axisReader('x', printer, line);
+		//value reset
+		value = 0;
+		//y reading
 		while(*line != 'Y')
 			line++;
-		while(*line != '.' && *line != ' ')
-			ret[i++] = *line++;
-		
+		line++;
+		if(!(*line >= '0' && *line <= '9'))
+			return(0);
+		axisReader('y', printer, line);
+		//z reading
 		if(lineHasZ(line))
 		{
 			while(*line != 'Z')
 				line++;
-			while(*line != ' ' && *line != 0)
-			ret[i++] = *line++;
+			line++;
+			if(!(*line >= '0' && *line <= '9'))
+				return(0);
+			axisReader('z', printer, line);
 			foundZ++;
 		}
-		ret[i] = 0;
-		return (ret);		
+		return (1);		
 	}
 	return(0);
-			
 }
 
 void putPointsIntoArray(char *line, int z)
@@ -91,6 +122,8 @@ int main()
 	char line[256];
 	int index = 0;
 	char **modell;
+	//agent contain values useful for printing simulation result
+	agent printerHead = {0};
 	char ret[100];
 	point currentPoint;
 	int i = 0;
@@ -103,7 +136,7 @@ int main()
 			i++;
 			 
 			
-				printf(cleanGcodeLine(line, ret));
+				printf(cleanGcodeLine(line, &printerHead));
 				//putPointsIntoArray(cleanGcodeLine(line, ret), 0);
 				printf("\n");
 			
