@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <ctype.h> 
-char matrix[100][100][100]; 
+#include <ctype.h>
+#define SIZE	200
+
+char matrix[SIZE][SIZE][SIZE]; 
 
 
 typedef struct point {
@@ -69,7 +71,7 @@ void	putAxisIntoStruct(char axis, point *currentPoint, char *line)
 		currentPoint->y = atoi(command);
 	else if (axis == 'Z')
 	{
-		while(*line != ' ' && *line != '.')
+		while(*line != ' ')
 			command[i++] = *line++;
 		command[i] = 0;
 		//i get what ure trying to do, but layer height is not always 0.2, is stored in currentSettings.layerheight
@@ -133,7 +135,7 @@ int	readValuesFromLine(char *line, point *currentPoint, settings *currentSetting
 		findAxisValues(&line, currentPoint, 'Y');
 		if(lineHasZ(line))
 			findAxisValues(&line, currentPoint, 'Z');
-		printf("used line: %s %d\n", line, currentPoint->z);
+		//printf("used line: %s %d\n", line, currentPoint->z);
 		return (1);
 	}
 	//settings
@@ -166,9 +168,13 @@ void setZero(settings *currentSettings, point *currentPoint)
 	currentSettings->zMinMax[1] = 0;
 }
 
-int main() 
+int main(int argc, char *argv[]) 
 {
-  	FILE *file = fopen("hello.gcode", "r");
+	FILE *file;
+  	if (argc != 2)
+		file = fopen("hello.gcode", "r");
+	else
+		file = fopen(argv[1], "r");
 	char line[256];
 	point *currentPoint = malloc(sizeof(point));
 	settings *currentSettings = malloc(sizeof(settings));
@@ -193,22 +199,23 @@ int main()
 			{
 				if (readSettings == 1)
 					readSettings = 0;
-				//printf("x: %d  y: %d z: %d mode: %d \n ", currentPoint->x,currentPoint->y,currentPoint->z,currentPoint->mode);
-				matrix[currentPoint->z][currentPoint->y / 2][currentPoint->x / 2] = 'x';
+				//printf("x: %d  y: %d z: %d char: %c \n ", currentPoint->x,currentPoint->y,currentPoint->z, matrix[currentPoint->z][currentPoint->y][currentPoint->x]);
+				matrix[currentPoint->z][currentPoint->y][currentPoint->x] = 'x';
 			}
 			else if (index == 2)
 			{
 				//printf("\nlh: %f\txmin: %d\txmax: %d\tymax: %d\tymax: %d\tzmin: %d\tzmax: %d\t", currentSettings->layerHeight, currentSettings->xMinMax[0], currentSettings->xMinMax[1], currentSettings->yMinMax[0], currentSettings->yMinMax[1], currentSettings->zMinMax[0], currentSettings->zMinMax[1]);
-				//getchar();
 			}
 		}
+		for(int k = 0; k <= SIZE; k++)
+		{
+			//printf("%d |", k);
+			for(int l = 0; l <= SIZE; l++)
+				printf("%c", matrix[1][k][l]);
+			printf("\n");
+		}
 	}
-	for(int k = 0; k < 200; k++)
-	{
-		//system("cls");
-		for(int l = 0; l < 200; l++)
-			printf(" %c ", matrix[1][k][l]);
-		printf("\n");
-	}
+	else
+		printf("Error reading file.\n");
 	getchar();
 }
