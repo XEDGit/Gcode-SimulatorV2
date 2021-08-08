@@ -19,7 +19,7 @@ int	lin_int(int x1, int y1, int x2, int y2, int x)
 	return (y);
 }
 
-//why do we need this?
+//why do we need this? so we know if Line has z lol bro look down
 int lineHasZ(char *line)
 {
 	int i = 0;
@@ -109,11 +109,11 @@ void putSettingsIntoStruct(char axis, int sign, char *line)
 		command[i++] = *line++;
 	command[i] = 0;
 	if (axis == 'X')
-		currentSettings->xMinMax[sign] = atoi(command);
+		currentSettings->xMinMax[sign] = atof(command);
 	else if (axis == 'Y')
-		currentSettings->yMinMax[sign] = atoi(command);
+		currentSettings->yMinMax[sign] = atof(command);
 	else if (axis == 'Z')
-		currentSettings->zMinMax[sign] = atoi(command);
+		currentSettings->zMinMax[sign] = atof(command);
 	else if (axis == 't')
 		currentSettings->layerHeight = atof(command);
 	free(command);
@@ -133,7 +133,7 @@ int	findAxisValues(char **line, point *currentPoint, char axis)
 
 int	findSettingsValues(char **line, char axis, int sign)
 {
-		char *temp_line = advancePtoChar(*line, axis);
+		char *temp_line = advancePtoChar(*line, axis); 
 		if (temp_line == 0)
 			return (0);
 		*line = temp_line;
@@ -149,9 +149,7 @@ int	readValuesFromLine(char *line, point *currentPoint)
 		currentPoint->mode = line[1] - '0';
 		findAxisValues(&line, currentPoint, 'X');
 		findAxisValues(&line, currentPoint, 'Y');
-		if(lineHasZ(line))
-			findAxisValues(&line, currentPoint, 'Z');
-		//printf("used line: %s %d\n", line, currentPoint->z);
+		findAxisValues(&line, currentPoint, 'Z');
 		return (1);
 	}
 	//settings
@@ -216,7 +214,7 @@ int	validateInput(int argc, char *argv[], FILE **file)
 			rateo = atoi(argv[1]);
 		else
 		{
-			printf("Error reading rateo, it must be between 1 and 5");
+			printf(RATEO_ERR);
 			return (1);
 		}
 		*file = fopen("hello.gcode", "r");
@@ -228,7 +226,7 @@ int	validateInput(int argc, char *argv[], FILE **file)
 			rateo = atoi(argv[1]);
 		else
 		{
-			printf("Error reading rateo, it must be between 1 and 5");
+			printf(RATEO_ERR);
 			return (1);
 		}
 			
@@ -250,7 +248,7 @@ void	pointcpy(point *p1, point *p2)
 	p1->mode = p2->mode;
 }
 
-int	clampValue(int value, int axis)
+int	clampValue(int value, int axis) //what am i looking at ?
 {
 	//axis 0 = x; 1 = y; 2 = z
 	value--;
@@ -327,7 +325,8 @@ void	lin_int_addPointToMatrix(point *current, point *old, char ***matrix)
 		}
 	}
 	//end point //don't know if it's needed
-	//matrix[clampValue(temp->z, 2)][clampValue(temp->y, 1)][clampValue(temp->x, 0)] = 'x';
+	matrix[clampValue(temp->z, 2)][clampValue(temp->y, 1)][clampValue(temp->x, 0)] = 'x';
+	free(temp);
 }
 
 int main(int argc, char *argv[]) 
