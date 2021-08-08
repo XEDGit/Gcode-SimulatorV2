@@ -294,7 +294,7 @@ int main(int argc, char *argv[])
 
 		for(int j = 1; j <= currentSettings->zMinMax[1] / currentSettings->layerHeight; j++)
 		{
-			system("cls"); //windows, substitute with 'clean' for Linux
+			system(CLEAR); //windows, substitute with 'clean' for Linux
 			printf("====================== LAYER %d =========================================", j);
 			for(int k = 0; k <= (currentSettings->yMinMax[1] / rateo) - 1; k++)
 			{
