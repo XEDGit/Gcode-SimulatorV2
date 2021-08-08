@@ -10,6 +10,8 @@
 
 int rateo = 1;
 
+settings *currentSettings;
+
 //linear interpolation formula
 int	lin_int(int x1, int y1, int x2, int y2, int x)
 {
@@ -72,7 +74,7 @@ int isDigit(char c)
 	return (0);
 }
 
-void	putAxisIntoStruct(char axis, point *currentPoint, char *line, settings *currentSettings)
+void	putAxisIntoStruct(char axis, point *currentPoint, char *line)
 {
 	int i = 0;
 	char	*command = malloc(100);
@@ -95,7 +97,7 @@ void	putAxisIntoStruct(char axis, point *currentPoint, char *line, settings *cur
 	free(command);
 }
 
-void putSettingsIntoStruct(char axis, int sign, settings *currentSettings, char *line)
+void putSettingsIntoStruct(char axis, int sign, char *line)
 {
 	int i = 0;
 	char	*command = malloc(100);
@@ -117,7 +119,7 @@ void putSettingsIntoStruct(char axis, int sign, settings *currentSettings, char 
 	free(command);
 }
 
-int	findAxisValues(char **line, point *currentPoint, char axis, settings *currentSettings)
+int	findAxisValues(char **line, point *currentPoint, char axis)
 {
 		char *temp_line = advancePtoChar(*line, axis);
 		if (temp_line == 0)
@@ -125,53 +127,53 @@ int	findAxisValues(char **line, point *currentPoint, char axis, settings *curren
 		*line = temp_line;
 		if(!isDigit(**line))
 			return(0);
-		putAxisIntoStruct(axis, currentPoint, *line, currentSettings);
+		putAxisIntoStruct(axis, currentPoint, *line);
 		return (1);
 }
 
-int	findSettingsValues(char **line, settings *currentSettings, char axis, int sign)
+int	findSettingsValues(char **line, char axis, int sign)
 {
 		char *temp_line = advancePtoChar(*line, axis);
 		if (temp_line == 0)
 			return (0);
 		*line = temp_line;
-		putSettingsIntoStruct(axis, sign, currentSettings, *line);
+		putSettingsIntoStruct(axis, sign, *line);
 		return (1);
 }
 
-int	readValuesFromLine(char *line, point *currentPoint, settings *currentSettings)
+int	readValuesFromLine(char *line, point *currentPoint)
 {
 	//linear interpolation
 	if (line[0] == 'G' && (line[1] == '0' || line[1] == '1'))
 	{
 		currentPoint->mode = line[1] - '0';
-		findAxisValues(&line, currentPoint, 'X', currentSettings);
-		findAxisValues(&line, currentPoint, 'Y', currentSettings);
+		findAxisValues(&line, currentPoint, 'X');
+		findAxisValues(&line, currentPoint, 'Y');
 		if(lineHasZ(line))
-			findAxisValues(&line, currentPoint, 'Z', currentSettings);
+			findAxisValues(&line, currentPoint, 'Z');
 		//printf("used line: %s %d\n", line, currentPoint->z);
 		return (1);
 	}
 	//settings
 	else if (line[0] == ';' && line[2] == 'A' && line[3] == 'X')
 	{
-		findSettingsValues(&line, currentSettings, line[4], 1);
+		findSettingsValues(&line, line[4], 1);
 		return (2);
 	}
 	else if (line[0] == ';' && line[2] == 'I' && line[3] == 'N')
 	{
-		findSettingsValues(&line, currentSettings, line[4], 0);
+		findSettingsValues(&line, line[4], 0);
 		return (2);
 	}
 	else if (line[0] == ';' && line[1] == 'L' && line[3] == 'y')
 	{
-		findSettingsValues(&line, currentSettings, 't', 0);
+		findSettingsValues(&line, 't', 0);
 		return (2);
 	}
 	return(0);
 }
 
-void setZero(settings *currentSettings, point *currentPoint)
+void setZero(point *currentPoint)
 {
 	//when you dont reset currentPoint and i spend 40 minutes to get what's going on :)) porcoddium
 	currentPoint->x = 0;
@@ -187,7 +189,7 @@ void setZero(settings *currentSettings, point *currentPoint)
 	currentSettings->zMinMax[1] = 0;
 }
 
-char	***allocateMatrix(settings *currentSettings)
+char	***allocateMatrix()
 {
 	char ***matrix = malloc(sizeof(char **) * currentSettings->zMinMax[1] / currentSettings->layerHeight + 1);
 	for(int j = 0; j <= currentSettings->zMinMax[1] / currentSettings->layerHeight; j++)
@@ -204,13 +206,6 @@ char	***allocateMatrix(settings *currentSettings)
 		}
 	}
 	return (matrix);
-}
-
-int	validateCoords(settings *currentSettings, point *currentPoint)
-{
-	if (currentPoint->x > currentSettings->xMinMax[1] || currentPoint->y > currentSettings->yMinMax[1] || currentPoint->z > currentSettings->zMinMax[1]/ currentSettings->layerHeight)
-		return(0);
-	return (1);
 }
 
 int	validateInput(int argc, char *argv[], FILE **file)
@@ -240,7 +235,99 @@ int	validateInput(int argc, char *argv[], FILE **file)
 	}
 	else
 		*file = fopen("hello.gcode", "r");
+
+		//for debugging purposes
+		// *file = fopen(argv[2], "r");
+		// rateo = atoi(argv[1]);
 		return (0);
+}
+
+void	pointcpy(point *p1, point *p2)
+{
+	p1->x = p2->x;
+	p1->y = p2->y;
+	p1->z = p2->z;
+	p1->mode = p2->mode;
+}
+
+int	clampValue(int value, int axis)
+{
+	//axis 0 = x; 1 = y; 2 = z
+	value--;
+	if (value < 0)
+		value = 0;
+	if (axis == 1)
+	{
+		if (value >= currentSettings->yMinMax[1] - rateo)
+		{
+			value = currentSettings->yMinMax[1];
+			return ((value / rateo) - 1);
+		}
+	}
+	else if (axis == 0)
+	{
+		if (value >= currentSettings->xMinMax[1] - rateo)
+		{
+			value = currentSettings->xMinMax[1];
+			return ((value / rateo) - 1);
+		}
+	}
+	else if (axis == 2)
+	{
+		value++;
+		if (value >= (currentSettings->zMinMax[1] / currentSettings->layerHeight))
+			value = (currentSettings->zMinMax[1] / currentSettings->layerHeight) - 1;
+		return (value);
+	}
+	return (value / rateo);
+}
+
+void	lin_int_addPointToMatrix(point *current, point *old, char ***matrix)
+{
+	point *temp = malloc(sizeof(point));
+	pointcpy(temp, old);
+	//first point
+	matrix[clampValue(temp->z, 2)][clampValue(temp->y, 1)][clampValue(temp->x, 0)] = 'x';
+	//linear interpolation
+	if (temp->x > current->x)
+	{
+		while (temp->y != current->y || temp->x != current->x)
+		{
+			temp->x--;
+			temp->y = lin_int(old->x, old->y, current->x, current->y, temp->x);
+			matrix[clampValue(temp->z, 2)][clampValue(temp->y, 1)][clampValue(temp->x, 0)] = 'x';
+		}
+	}
+	else if (temp->x < current->x)
+	{
+		while (temp->y != current->y || temp->x != current->x)
+		{
+			temp->x++;
+			temp->y = lin_int(old->x, old->y, current->x, current->y, temp->x);
+			matrix[clampValue(temp->z, 2)][clampValue(temp->y, 1)][clampValue(temp->x, 0)] = 'x';
+		}
+	}
+	else
+	{
+		if (temp->y > current->y)
+		{
+			while (temp->y != current->y || temp->x != current->x)
+			{
+				temp->y--;
+				matrix[clampValue(temp->z, 2)][clampValue(temp->y, 1)][clampValue(temp->x, 0)] = 'x';
+			}
+		}
+		else
+		{
+			while (temp->y != current->y || temp->x != current->x)
+			{
+				temp->y++;
+				matrix[clampValue(current->z, 2)][clampValue(temp->y, 1)][clampValue(temp->x, 0)] = 'x';
+			}
+		}
+	}
+	//end point //don't know if it's needed
+	//matrix[clampValue(temp->z, 2)][clampValue(temp->y, 1)][clampValue(temp->x, 0)] = 'x';
 }
 
 int main(int argc, char *argv[]) 
@@ -249,13 +336,14 @@ int main(int argc, char *argv[])
   	if (validateInput(argc, argv, &file))
 		return (1);
 	char line[256];
+	currentSettings = malloc(sizeof(settings));
 	point *currentPoint = malloc(sizeof(point));
-	settings *currentSettings = malloc(sizeof(settings));
+	point *oldPoint = malloc(sizeof(point));
 	char ***matrix;
 	int readSettings = 1;
 	int i = 0;
 
-	setZero(currentSettings, currentPoint);
+	setZero(currentPoint);
 	if (file != 0)
 	{
 		while (fgets(line, sizeof(line), file) )
@@ -263,12 +351,13 @@ int main(int argc, char *argv[])
 			if (!readSettings)
 			{
 				printf("Settings succesfully parsed.\n");
-				matrix = allocateMatrix(currentSettings);
+				matrix = allocateMatrix();
 				printf("3D model allocated.\n");
 				readSettings = 2;
 			}
 			i++;
-			int index = readValuesFromLine(line, currentPoint, currentSettings);
+			pointcpy(oldPoint, currentPoint);
+			int index = readValuesFromLine(line, currentPoint);
 			if(index == 1)
 			{
 				if (readSettings == 1)
@@ -277,12 +366,15 @@ int main(int argc, char *argv[])
 					continue;
 				}
 				//printf("x: %d  y: %d z: %d char: %c \n ", currentPoint->x,currentPoint->y,currentPoint->z, matrix[currentPoint->z][currentPoint->y][currentPoint->x]);
-				if (validateCoords(currentSettings, currentPoint))
-					matrix[currentPoint->z][(currentPoint->y / rateo) - 1][(currentPoint->x / rateo) - 1] = 'x';
+				if (currentPoint->mode)
+					lin_int_addPointToMatrix(currentPoint, oldPoint, matrix);
+				// else
+				// 	matrix[currentPoint->z][clampValue(currentPoint->y, 1)][clampValue(currentPoint->x, 0)] = 'x';
+
 			}
 			else if (index == 2)
 			{
-				//printf("\nlh: %f\txmin: %d\txmax: %d\tymax: %d\tymax: %d\tzmin: %d\tzmax: %d\t", currentSettings->layerHeight, currentSettings->xMinMax[0], currentSettings->xMinMax[1], currentSettings->yMinMax[0], currentSettings->yMinMax[1], currentSettings->zMinMax[0], currentSettings->zMinMax[1]);
+				//printf("\nlh: %f\txmin: %d\txmax: %d\tymax: %d\tymax: %d\tzmin: %d\tzmax: %d\t"->layerHeight, currentSettings->xMinMax[0], currentSettings->xMinMax[1], currentSettings->yMinMax[0], currentSettings->yMinMax[1], currentSettings->zMinMax[0], currentSettings->zMinMax[1]);
 			}
 		}
 		//print result
@@ -292,9 +384,9 @@ int main(int argc, char *argv[])
 		// 			matrix[0] = mergeLayers(matrix[0], matrix[l], currentSettings, rateo);
 		/////////////
 
-		for(int j = 1; j <= currentSettings->zMinMax[1] / currentSettings->layerHeight; j++)
+		for(int j = 1; j < currentSettings->zMinMax[1] / currentSettings->layerHeight; j++)
 		{
-			system(CLEAR); //windows, substitute with 'clean' for Linux
+			system(CLEAR); //CLEAR defined in gcodesim.h
 			printf("====================== LAYER %d =========================================", j);
 			for(int k = 0; k <= (currentSettings->yMinMax[1] / rateo) - 1; k++)
 			{
