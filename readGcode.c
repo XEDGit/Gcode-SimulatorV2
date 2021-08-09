@@ -82,7 +82,7 @@ void	putAxisIntoStruct(char axis, point *currentPoint, char *line)
 		while(*line != ' ' && *line != '\n')
 			command[i++] = *line++;
 		command[i] = 0;
-		//i get what ure trying to do, but layer height is not always 0.2, is stored in currentSettings.layerheight
+		//i get what ure trying to do, but layer height is not always 0.2, is stored in currentSettings.layerheight yes thank u captain obvious <3
 		currentPoint->z = (int) ((atof(command) / currentSettings->layerHeight) + 1);
 	}
 	free(command);
@@ -207,13 +207,8 @@ int	validateInput(int argc, char *argv[], FILE **file)
 		}
 			
 	}
-	else
-		*file = fopen("hello.gcode", "r");
-
-		//for debugging purposes only
-		// *file = fopen(argv[2], "r");
-		// rateo = atoi(argv[1]);
-		return (0);
+	*file = fopen("hello.gcode", "r");
+	return (0);
 }
 
 int	clampValue(int value, int axis) 
@@ -297,78 +292,91 @@ void	lin_int_addPointToMatrix(point *current, point *old, char ***matrix)
 	free(temp);
 }
 
+void	printMatrix(char ***matrix)
+{
+	for(int j = 1; j < currentSettings->zMinMax[1] / currentSettings->layerHeight; j++)
+	{
+		//system(CLEAR); //CLEAR defined in gcodesim.h
+		printf("====================== LAYER %d =========================================\n", j);
+		for(int k = 0; k <= (currentSettings->yMinMax[1] / rateo) - 1; k++)
+		{
+			for(int l = 0; l <= (currentSettings->xMinMax[1] / rateo) - 1; l++)
+				printf("%c ", matrix[j][k][l]);
+			printf("\n");
+		}
+	}
+}
+void readAllLines(char ***matrix, FILE **file)
+{
+	char line[256];
+	int readSettings = 1;
+	point *oldPoint = malloc(sizeof(point));
+	point *currentPoint = malloc(sizeof(point));
+
+	setZero(currentPoint);
+	while (fgets(line, sizeof(line), *file) )
+	{
+		if (!readSettings)
+		{
+			printf("Settings succesfully parsed.\n");
+			matrix = allocateMatrix();
+			if(matrix != 0)
+				printf("3D model allocated.\n");
+			readSettings = 2;
+		}
+		pointcpy(oldPoint, currentPoint);
+		int index = readValuesFromLine(line, currentPoint);
+		if(index == 1)
+		{
+			if (readSettings == 1)
+			{
+				readSettings = 0;
+				continue;
+			}
+			if (currentPoint->mode)
+				lin_int_addPointToMatrix(currentPoint, oldPoint, matrix);
+		}
+	}
+}
 int main(int argc, char *argv[]) 
 {
 	FILE *file;
-  	if (validateInput(argc, argv, &file))
-		return (1);
-	char line[256];
-	currentSettings = malloc(sizeof(settings));
-	point *currentPoint = malloc(sizeof(point));
-	point *oldPoint = malloc(sizeof(point));
 	char ***matrix;
-	int readSettings = 1;
-	int i = 0;
 
-	setZero(currentPoint);
-	if (file != 0)
+	currentSettings = malloc(sizeof(settings));
+	if (validateInput(argc, argv, &file))
+		return (1);
+	if (file != 0 && matrix != NULL)
+		readAllLines(matrix, &file);
+	else
 	{
-		while (fgets(line, sizeof(line), file) )
-		{
-			if (!readSettings)
-			{
-				printf("Settings succesfully parsed.\n");
-				matrix = allocateMatrix();
-				printf("3D model allocated.\n");
-				readSettings = 2;
-			}
-			i++;
-			pointcpy(oldPoint, currentPoint);
-			int index = readValuesFromLine(line, currentPoint);
-			if(index == 1)
-			{
-				if (readSettings == 1)
-				{
-					readSettings = 0;
-					continue;
-				}
-				//printf("x: %d  y: %d z: %d char: %c \n ", currentPoint->x,currentPoint->y,currentPoint->z, matrix[currentPoint->z][currentPoint->y][currentPoint->x]);
-				if (currentPoint->mode)
-					lin_int_addPointToMatrix(currentPoint, oldPoint, matrix);
-				// else
-				// 	matrix[currentPoint->z][clampValue(currentPoint->y, 1)][clampValue(currentPoint->x, 0)] = 'x';
+		printf("Error reading file.");
+		return (0);
+	}
+	printMatrix(matrix);
+	free(matrix);
+	return (0);
+}
 
-			}
-			else if (index == 2)
-			{
-				//printf("\nlh: %f\txmin: %d\txmax: %d\tymax: %d\tymax: %d\tzmin: %d\tzmax: %d\t"->layerHeight, currentSettings->xMinMax[0], currentSettings->xMinMax[1], currentSettings->yMinMax[0], currentSettings->yMinMax[1], currentSettings->zMinMax[0], currentSettings->zMinMax[1]);
-			}
-		}
-		//print result
+//Comment Section
+
+//print result
 
 		//not working
 		// for(int l = 1; l <= ((currentSettings->zMinMax[1] / currentSettings->layerHeight) / rateo) - 1; l++)
 		// 			matrix[0] = mergeLayers(matrix[0], matrix[l], currentSettings, rateo);
 		/////////////
 
-		for(int j = 1; j < currentSettings->zMinMax[1] / currentSettings->layerHeight; j++)
-		{
-			system(CLEAR); //CLEAR defined in gcodesim.h
-			printf("====================== LAYER %d =========================================\n", j);
-			for(int k = 0; k <= (currentSettings->yMinMax[1] / rateo) - 1; k++)
-			{
-				//printf("%d |", k);
-				for(int l = 0; l <= (currentSettings->xMinMax[1] / rateo) - 1; l++)
-					printf("%c ", matrix[j][k][l]);
-				printf("\n");
-			}
-			//printf("\n=========================================================================\n\n");
-			//break;
-		}
-	}
-	else
-		printf("Error reading file.");
-	free(matrix);
-	//getchar();
-	return (0);
-}
+//printf("x: %d  y: %d z: %d char: %c \n ", currentPoint->x,currentPoint->y,currentPoint->z, matrix[currentPoint->z][currentPoint->y][currentPoint->x]);
+
+//else if (index == 2)
+			//{
+				//printf("\nlh: %f\txmin: %d\txmax: %d\tymax: %d\tymax: %d\tzmin: %d\tzmax: %d\t"->layerHeight, currentSettings->xMinMax[0], currentSettings->xMinMax[1], currentSettings->yMinMax[0], currentSettings->yMinMax[1], currentSettings->zMinMax[0], currentSettings->zMinMax[1]);
+			//}
+
+// else
+				// 	matrix[currentPoint->z][clampValue(currentPoint->y, 1)][clampValue(currentPoint->x, 0)] = 'x';			
+
+//for debugging purposes only
+		// *file = fopen(argv[2], "r");
+		// rateo = atoi(argv[1]);
