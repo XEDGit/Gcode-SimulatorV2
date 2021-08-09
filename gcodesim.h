@@ -35,5 +35,6 @@ void	pointcpy(point *p1, point *p2);
 int		isDigit(char c);
 char	*advancePtoChar(char *pointer, char c);
 int		roundFloat(float value);
+int	lin_int(int x1, int y1, int x2, int y2, int x);
 
 #endif

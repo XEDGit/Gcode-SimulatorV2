@@ -26,6 +26,20 @@ void	pointcpy(point *p1, point *p2)
 	p1->mode = p2->mode;
 }
 
+int roundFloat(float value)
+{
+	if(value - (int) value >= 0.5f)
+		return ((int) (value + 0.5f));
+	return ((int)value);
+}
+
+int	lin_int(int x1, int y1, int x2, int y2, int x)
+{
+	int y = y1 + (((x - x1)*(y2 - y1)) / (x2 - x1));
+	return (y);
+}
+
+
 char	**mergeLayers(char **l1, char **l2, settings *currentSettings, int rateo)
 {
 	char	**res = malloc(sizeof(char *) * currentSettings->yMinMax[1]);
@@ -45,11 +59,4 @@ char	**mergeLayers(char **l1, char **l2, settings *currentSettings, int rateo)
 		}
 	}
 	return (res);
-}
-
-int roundFloat(float value)
-{
-	if(value - (int) value >= 0.5f)
-		return ((int) (value + 0.5f));
-	return ((int)value);
 }

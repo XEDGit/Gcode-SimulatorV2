@@ -12,44 +12,9 @@ int rateo = 1;
 
 settings *currentSettings;
 
-//linear interpolation formula
-int	lin_int(int x1, int y1, int x2, int y2, int x)
-{
-	int y = y1 + (((x - x1)*(y2 - y1)) / (x2 - x1));
-	return (y);
-}
-
-// int	strlenght(char *str)
-// {
-// 	int i = 0;
-// 	while (str[i])
-// 		i++;
-// 	return (i);
-// }
-
-// char	*stringjoin(char *s1, char *s2)
-// {
-// 	int lenght = strlenght(s1) + strlenght(s2);
-// 	char	*p = malloc(lenght);
-// 	int i = 0;
-// 	for (; s1[i] != 0 && i < 100; i++)
-// 	{
-// 		p[i] = s1[i];
-// 	}
-// 	for (int j = 0; s2[j] != 0 && i < 100; i++, j++)
-// 	{
-// 		p[i] = s2[j];
-// 	}
-// 	p[i] = 0;
-// 	return (p);
-// }
 
 
-
-//love when you focus too much on something and do all the smaller nonsense details <3
-
-
-void setZero(point *currentPoint)
+void	setZero(point *currentPoint)
 {
 	//when you dont reset currentPoint and i spend 40 minutes to get what's going on :)) porcoddium
 	currentPoint->x = 0;
@@ -88,7 +53,7 @@ void	putAxisIntoStruct(char axis, point *currentPoint, char *line)
 	free(command);
 }
 
-void putSettingsIntoStruct(char axis, int sign, char *line)
+void	putSettingsIntoStruct(char axis, int sign, char *line)
 {
 	int i = 0;
 	char	*command = malloc(100);
@@ -110,7 +75,7 @@ void putSettingsIntoStruct(char axis, int sign, char *line)
 	free(command);
 }
 
-int	findAxisValues(char **line, point *currentPoint, char axis)
+int		findAxisValues(char **line, point *currentPoint, char axis)
 {
 		char *temp_line = advancePtoChar(*line, axis);
 		if (temp_line == 0)
@@ -122,7 +87,7 @@ int	findAxisValues(char **line, point *currentPoint, char axis)
 		return (1);
 }
 
-int	findSettingsValues(char **line, char axis, int sign)
+int		findSettingsValues(char **line, char axis, int sign)
 {
 		char *temp_line = advancePtoChar(*line, axis); 
 		if (temp_line == 0)
@@ -132,7 +97,7 @@ int	findSettingsValues(char **line, char axis, int sign)
 		return (1);
 }
 
-int	readValuesFromLine(char *line, point *currentPoint)
+int		readValuesFromLine(char *line, point *currentPoint)
 {
 	//linear interpolation
 	if (line[0] == 'G' && (line[1] == '0' || line[1] == '1'))
@@ -162,7 +127,6 @@ int	readValuesFromLine(char *line, point *currentPoint)
 	return(0);
 }
 
-
 char	***allocateMatrix()
 {
 	char ***matrix = malloc(sizeof(char **) * currentSettings->zMinMax[1] / currentSettings->layerHeight + 1);
@@ -182,7 +146,7 @@ char	***allocateMatrix()
 	return (matrix);
 }
 
-int	validateInput(int argc, char *argv[], FILE **file)
+int		validateInput(int argc, char *argv[], FILE **file)
 {
 	if (argc == 2)
 	{
@@ -211,7 +175,7 @@ int	validateInput(int argc, char *argv[], FILE **file)
 	return (0);
 }
 
-int	clampValue(int value, int axis) 
+int		clampValue(int value, int axis) 
 {
 	//axis 0 = x; 1 = y; 2 = z
 	value--;
@@ -310,6 +274,7 @@ void	printMatrix(char ***matrix)
 		}
 	}
 }
+
 char ***readAllLines(char ***matrix, FILE **file)
 {
 	char line[256];
@@ -318,7 +283,7 @@ char ***readAllLines(char ***matrix, FILE **file)
 	point *currentPoint = malloc(sizeof(point));
 
 	setZero(currentPoint);
-	while (fgets(line, sizeof(line), *file) )
+	while (fgets(line, sizeof(line), *file))
 	{
 		if (!readSettings)
 		{
@@ -343,6 +308,7 @@ char ***readAllLines(char ***matrix, FILE **file)
 	}
 	return (matrix);
 }
+
 int main(int argc, char *argv[]) 
 {
 	FILE *file;
@@ -351,7 +317,7 @@ int main(int argc, char *argv[])
 	currentSettings = malloc(sizeof(settings));
 	if (validateInput(argc, argv, &file))
 		return (1);
-	if (file != 0 && matrix != NULL)
+	if (file != 0)
 		matrix = readAllLines(matrix, &file);
 	else
 	{
@@ -385,3 +351,33 @@ int main(int argc, char *argv[])
 //for debugging purposes only
 		// *file = fopen(argv[2], "r");
 		// rateo = atoi(argv[1]);
+
+
+// int	strlenght(char *str)
+// {
+// 	int i = 0;
+// 	while (str[i])
+// 		i++;
+// 	return (i);
+// }
+
+// char	*stringjoin(char *s1, char *s2)
+// {
+// 	int lenght = strlenght(s1) + strlenght(s2);
+// 	char	*p = malloc(lenght);
+// 	int i = 0;
+// 	for (; s1[i] != 0 && i < 100; i++)
+// 	{
+// 		p[i] = s1[i];
+// 	}
+// 	for (int j = 0; s2[j] != 0 && i < 100; i++, j++)
+// 	{
+// 		p[i] = s2[j];
+// 	}
+// 	p[i] = 0;
+// 	return (p);
+// }
+
+
+
+//love when you focus too much on something and do all the smaller nonsense details <3		
