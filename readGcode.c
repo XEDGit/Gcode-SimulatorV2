@@ -186,7 +186,7 @@ int	validateInput(int argc, char *argv[], FILE **file)
 {
 	if (argc == 2)
 	{
-		if (atoi(argv[1]) != 0 && atoi(argv[1]) < 6 && atoi(argv[1]) >= 1)
+		if (atoi(argv[1]) != 0 && atoi(argv[1]) <= 100 && atoi(argv[1]) >= 1)
 			rateo = atoi(argv[1]);
 		else
 		{
@@ -198,7 +198,7 @@ int	validateInput(int argc, char *argv[], FILE **file)
 	else if (argc == 3)
 	{
 		*file = fopen(argv[2], "r");
-		if (atoi(argv[1]) != 0 && atoi(argv[1]) < 6 && atoi(argv[1]) >= 1)
+		if (atoi(argv[1]) != 0 && atoi(argv[1]) <= 100 && atoi(argv[1]) >= 1)
 			rateo = atoi(argv[1]);
 		else
 		{
@@ -210,13 +210,11 @@ int	validateInput(int argc, char *argv[], FILE **file)
 	else
 		*file = fopen("hello.gcode", "r");
 
-		//for debugging purposes
+		//for debugging purposes only
 		// *file = fopen(argv[2], "r");
 		// rateo = atoi(argv[1]);
 		return (0);
 }
-
-
 
 int	clampValue(int value, int axis) 
 {
@@ -356,7 +354,7 @@ int main(int argc, char *argv[])
 		for(int j = 1; j < currentSettings->zMinMax[1] / currentSettings->layerHeight; j++)
 		{
 			system(CLEAR); //CLEAR defined in gcodesim.h
-			printf("====================== LAYER %d =========================================", j);
+			printf("====================== LAYER %d =========================================\n", j);
 			for(int k = 0; k <= (currentSettings->yMinMax[1] / rateo) - 1; k++)
 			{
 				//printf("%d |", k);
