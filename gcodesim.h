@@ -32,6 +32,6 @@ char	**mergeLayers(char **l1, char **l2, settings *currentSettings, int rateo);
 void	pointcpy(point *p1, point *p2);
 int		isDigit(char c);
 char	*advancePtoChar(char *pointer, char c);
-int		floorFloat(float value);
+int		roundFloat(float value);
 
 #endif

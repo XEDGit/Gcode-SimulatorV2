@@ -74,9 +74,9 @@ void	putAxisIntoStruct(char axis, point *currentPoint, char *line)
 		command[i++] = *line++;
 	command[i] = 0;
 	if (axis == 'X')
-		currentPoint->x = floorFloat(atof(command));
+		currentPoint->x = roundFloat(atof(command));
 	else if (axis == 'Y')
-		currentPoint->y = floorFloat(atof(command));
+		currentPoint->y = roundFloat(atof(command));
 	else if (axis == 'Z')
 	{
 		while(*line != ' ' && *line != '\n')

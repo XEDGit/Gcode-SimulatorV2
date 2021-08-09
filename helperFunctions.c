@@ -47,9 +47,9 @@ char	**mergeLayers(char **l1, char **l2, settings *currentSettings, int rateo)
 	return (res);
 }
 
-int floorFloat(float value)
+int roundFloat(float value)
 {
-	if(((int) (value * 10)) % 10  >= 5)
+	if(value - (int) value >= 0.5f)
 		return ((int) (value + 0.5f));
 	return ((int)value);
 }
