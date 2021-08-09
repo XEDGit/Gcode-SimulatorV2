@@ -367,11 +367,11 @@ int main(int argc, char *argv[])
 				printf("\n");
 			}
 			//printf("\n=========================================================================\n\n");
-			break;
+			//break;
 		}
 	}
 	else
-		printf("Error reading file.");
+		printf(FILE_ERR);
 	free(matrix);
 	//getchar();
 	return (0);
