@@ -19,17 +19,6 @@ int	lin_int(int x1, int y1, int x2, int y2, int x)
 	return (y);
 }
 
-//why do we need this? so we know if Line has z lol bro look down
-int lineHasZ(char *line)
-{
-	int i = 0;
-
-	while(line[i] != 0)
-		if(line[i++] == 'Z')
-			return(1);
-	return (0);	
-}
-
 // int	strlenght(char *str)
 // {
 // 	int i = 0;
@@ -55,23 +44,25 @@ int lineHasZ(char *line)
 // 	return (p);
 // }
 
-char *advancePtoChar(char *pointer, char c)
-{
-	while(*pointer != c && *pointer != 0)
-		pointer++;
-	//checking not found error
-	if (!*pointer)
-		return (0);
-	pointer++;
-	return(pointer);			
-}
+
 
 //love when you focus too much on something and do all the smaller nonsense details <3
-int isDigit(char c)
+
+
+void setZero(point *currentPoint)
 {
-	if(c >= '0' && c <= '9')
-		return (1);
-	return (0);
+	//when you dont reset currentPoint and i spend 40 minutes to get what's going on :)) porcoddium
+	currentPoint->x = 0;
+	currentPoint->y = 0;
+	currentPoint->z = 0;
+	currentPoint->mode = 0;
+	currentSettings->layerHeight = 0;
+	currentSettings->xMinMax[0] = 0;
+	currentSettings->xMinMax[1] = 0;
+	currentSettings->yMinMax[0] = 0;
+	currentSettings->yMinMax[1] = 0;
+	currentSettings->zMinMax[0] = 0;
+	currentSettings->zMinMax[1] = 0;
 }
 
 void	putAxisIntoStruct(char axis, point *currentPoint, char *line)
@@ -79,13 +70,13 @@ void	putAxisIntoStruct(char axis, point *currentPoint, char *line)
 	int i = 0;
 	char	*command = malloc(100);
 
-	while (*line != '.' && *line != ' ' && axis != 'Z')
+	while (*line != ' ' && axis != 'Z' && *line != '\n')
 		command[i++] = *line++;
 	command[i] = 0;
 	if (axis == 'X')
-		currentPoint->x = atoi(command);
+		currentPoint->x = floorFloat(atof(command));
 	else if (axis == 'Y')
-		currentPoint->y = atoi(command);
+		currentPoint->y = floorFloat(atof(command));
 	else if (axis == 'Z')
 	{
 		while(*line != ' ' && *line != '\n')
@@ -171,21 +162,6 @@ int	readValuesFromLine(char *line, point *currentPoint)
 	return(0);
 }
 
-void setZero(point *currentPoint)
-{
-	//when you dont reset currentPoint and i spend 40 minutes to get what's going on :)) porcoddium
-	currentPoint->x = 0;
-	currentPoint->y = 0;
-	currentPoint->z = 0;
-	currentPoint->mode = 0;
-	currentSettings->layerHeight = 0;
-	currentSettings->xMinMax[0] = 0;
-	currentSettings->xMinMax[1] = 0;
-	currentSettings->yMinMax[0] = 0;
-	currentSettings->yMinMax[1] = 0;
-	currentSettings->zMinMax[0] = 0;
-	currentSettings->zMinMax[1] = 0;
-}
 
 char	***allocateMatrix()
 {
@@ -240,15 +216,9 @@ int	validateInput(int argc, char *argv[], FILE **file)
 		return (0);
 }
 
-void	pointcpy(point *p1, point *p2)
-{
-	p1->x = p2->x;
-	p1->y = p2->y;
-	p1->z = p2->z;
-	p1->mode = p2->mode;
-}
 
-int	clampValue(int value, int axis) //what am i looking at ?
+
+int	clampValue(int value, int axis) 
 {
 	//axis 0 = x; 1 = y; 2 = z
 	value--;

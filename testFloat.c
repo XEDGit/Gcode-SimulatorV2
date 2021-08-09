@@ -1,7 +1,8 @@
 #include <stdlib.h>
 
-int main()
+int floorFloat(float value)
 {
-	printf("%d\n",(int)atof("1.6"));
-	printf("%d\n",(int)atof("1.4"));
+	if(((int) (value * 10)) % 10  >= 5)
+		return ((int) (value + 0.5f));
+	return ((int)value);	
 }
