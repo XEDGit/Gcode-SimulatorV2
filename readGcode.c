@@ -278,13 +278,17 @@ void	lin_int_addPointToMatrix(point *current, point *old, char ***matrix)
 				matrix[clampValue(temp->z, 2)][clampValue(temp->y, 1)][clampValue(temp->x, 0)] = 'x';
 			}
 		}
-		else
+		else if (temp->y < current->y)
 		{
 			while (temp->y != current->y || temp->x != current->x)
 			{
 				temp->y++;
 				matrix[clampValue(current->z, 2)][clampValue(temp->y, 1)][clampValue(temp->x, 0)] = 'x';
 			}
+		}
+		else
+		{
+			matrix[clampValue(current->z, 2)][clampValue(temp->y, 1)][clampValue(temp->x, 0)] = 'x';
 		}
 	}
 	//end point //don't know if it's needed
@@ -349,11 +353,15 @@ int main(int argc, char *argv[])
 	if (file != 0 && matrix != NULL)
 		readAllLines(matrix, &file);
 	else
+<<<<<<< HEAD
 	{
 		printf("Error reading file.");
 		return (0);
 	}
 	printMatrix(matrix);
+=======
+		printf(FILE_ERR);
+>>>>>>> c7caeb900b48c0eb5a7f9dc937862fcc8691adc1
 	free(matrix);
 	return (0);
 }
