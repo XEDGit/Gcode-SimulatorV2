@@ -310,7 +310,7 @@ void	printMatrix(char ***matrix)
 		}
 	}
 }
-void readAllLines(char ***matrix, FILE **file)
+char ***readAllLines(char ***matrix, FILE **file)
 {
 	char line[256];
 	int readSettings = 1;
@@ -341,6 +341,7 @@ void readAllLines(char ***matrix, FILE **file)
 				lin_int_addPointToMatrix(currentPoint, oldPoint, matrix);
 		}
 	}
+	return (matrix);
 }
 int main(int argc, char *argv[]) 
 {
@@ -351,7 +352,7 @@ int main(int argc, char *argv[])
 	if (validateInput(argc, argv, &file))
 		return (1);
 	if (file != 0 && matrix != NULL)
-		readAllLines(matrix, &file);
+		matrix = readAllLines(matrix, &file);
 	else
 	{
 		printf("Error reading file.");
