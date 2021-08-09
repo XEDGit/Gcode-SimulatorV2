@@ -353,15 +353,11 @@ int main(int argc, char *argv[])
 	if (file != 0 && matrix != NULL)
 		readAllLines(matrix, &file);
 	else
-<<<<<<< HEAD
 	{
 		printf("Error reading file.");
 		return (0);
 	}
 	printMatrix(matrix);
-=======
-		printf(FILE_ERR);
->>>>>>> c7caeb900b48c0eb5a7f9dc937862fcc8691adc1
 	free(matrix);
 	return (0);
 }
