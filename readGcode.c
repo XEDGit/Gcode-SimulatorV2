@@ -12,8 +12,6 @@ int rateo = 1;
 
 settings *currentSettings;
 
-
-
 void	setZero(point *currentPoint)
 {
 	//when you dont reset currentPoint and i spend 40 minutes to get what's going on :)) porcoddium
@@ -47,7 +45,7 @@ void	putAxisIntoStruct(char axis, point *currentPoint, char *line)
 		while(*line != ' ' && *line != '\n')
 			command[i++] = *line++;
 		command[i] = 0;
-		//i get what ure trying to do, but layer height is not always 0.2, is stored in currentSettings.layerheight yes thank u captain obvious <3
+		//<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3
 		currentPoint->z = (int) ((atof(command) / currentSettings->layerHeight) + 1);
 	}
 	free(command);
@@ -77,24 +75,24 @@ void	putSettingsIntoStruct(char axis, int sign, char *line)
 
 int		findAxisValues(char **line, point *currentPoint, char axis)
 {
-		char *temp_line = advancePtoChar(*line, axis);
-		if (temp_line == 0)
-			return (0);
-		*line = temp_line;
-		if(!isDigit(**line))
-			return(0);
-		putAxisIntoStruct(axis, currentPoint, *line);
-		return (1);
+	char *temp_line = advancePtoChar(*line, axis);
+	if (temp_line == 0)
+		return (0);
+	*line = temp_line;
+	if(!isDigit(**line))
+		return(0);
+	putAxisIntoStruct(axis, currentPoint, *line);
+	return (1);
 }
 
 int		findSettingsValues(char **line, char axis, int sign)
 {
-		char *temp_line = advancePtoChar(*line, axis); 
-		if (temp_line == 0)
-			return (0);
-		*line = temp_line;
-		putSettingsIntoStruct(axis, sign, *line);
-		return (1);
+	char *temp_line = advancePtoChar(*line, axis); 
+	if (temp_line == 0)
+		return (0);
+	*line = temp_line;
+	putSettingsIntoStruct(axis, sign, *line);
+	return (1);
 }
 
 int		readValuesFromLine(char *line, point *currentPoint)
@@ -129,16 +127,20 @@ int		readValuesFromLine(char *line, point *currentPoint)
 
 char	***allocateMatrix()
 {
-	char ***matrix = malloc(sizeof(char **) * currentSettings->zMinMax[1] / currentSettings->layerHeight + 1);
-	for(int j = 0; j <= currentSettings->zMinMax[1] / currentSettings->layerHeight; j++)
+	int	zaxis = currentSettings->zMinMax[1] / currentSettings->layerHeight;
+	int	yaxis = currentSettings->yMinMax[1] / rateo;
+	int	xaxis = currentSettings->xMinMax[1] / rateo;
+
+	char ***matrix = malloc(sizeof(char **) * zaxis + 1);
+	for(int j = 0; j <= zaxis; j++)
 	{
-		char **z = malloc(sizeof(char *) * (currentSettings->yMinMax[1] / rateo));
+		char **z = malloc(sizeof(char *) * yaxis);
 		matrix[j] = z;
 
-		for(int k = 0; k <= (currentSettings->yMinMax[1] / rateo)  - 1; k++)
+		for(int k = 0; k <= yaxis - 1; k++)
 		{
-			char *y = malloc(sizeof(char) * (currentSettings->xMinMax[1] / rateo));
-			for(int j = 0; j <= (currentSettings->xMinMax[1] / rateo) - 1; j++)
+			char *y = malloc(sizeof(char) * xaxis);
+			for(int j = 0; j <= xaxis - 1; j++)
 				y[j] = ' ';
 			matrix[j][k] = y;
 		}
@@ -162,14 +164,14 @@ int		validateInput(int argc, char *argv[], FILE **file)
 	else if (argc == 3)
 	{
 		*file = fopen(argv[2], "r");
-		if (atoi(argv[1]) != 0 && atoi(argv[1]) <= 100 && atoi(argv[1]) >= 1)
+		if (atoi(argv[1]) <= 100 && atoi(argv[1]) > 0)
 			rateo = atoi(argv[1]);
 		else
 		{
 			printf(RATEO_ERR);
 			return (1);
 		}
-			
+		return (0);
 	}
 	*file = fopen("hello.gcode", "r");
 	return (0);
@@ -255,7 +257,7 @@ void	lin_int_addPointToMatrix(point *current, point *old, char ***matrix)
 			matrix[clampValue(current->z, 2)][clampValue(temp->y, 1)][clampValue(temp->x, 0)] = 'x';
 		}
 	}
-	//end point //don't know if it's needed
+	//end point //don't know if it's needed //leave it there for now
 	matrix[clampValue(temp->z, 2)][clampValue(temp->y, 1)][clampValue(temp->x, 0)] = 'x';
 	free(temp);
 }
@@ -264,7 +266,7 @@ void	printMatrix(char ***matrix)
 {
 	for(int j = 1; j < currentSettings->zMinMax[1] / currentSettings->layerHeight; j++)
 	{
-		//system(CLEAR); //CLEAR defined in gcodesim.h
+		system(CLEAR); //CLEAR defined in gcodesim.h
 		printf("====================== LAYER %d =========================================\n", j);
 		for(int k = 0; k <= (currentSettings->yMinMax[1] / rateo) - 1; k++)
 		{
