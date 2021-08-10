@@ -308,7 +308,24 @@ char ***readAllLines(char ***matrix, FILE **file)
 				lin_int_addPointToMatrix(currentPoint, oldPoint, matrix);
 		}
 	}
+	free(oldPoint);
+	free(currentPoint);
 	return (matrix);
+}
+
+void freeMatrix(char ***matrix)
+{
+	int	zaxis = currentSettings->zMinMax[1] / currentSettings->layerHeight;
+	int	yaxis = currentSettings->yMinMax[1] / rateo;
+	int	xaxis = currentSettings->xMinMax[1] / rateo;
+
+	for(int j = 0; j <= zaxis; j++)
+	{
+		for(int k = 0; k <= yaxis - 1; k++)
+			free(matrix[j][k]);
+		free(matrix[j]);
+	}
+	free(matrix);
 }
 
 int main(int argc, char *argv[]) 
@@ -327,11 +344,36 @@ int main(int argc, char *argv[])
 		return (0);
 	}
 	printMatrix(matrix);
-	free(matrix);
+	freeMatrix(matrix);
 	return (0);
 }
 
 //Comment Section
+
+// //
+
+//        |  \ \ | |/ /
+//           |  |\ `' ' /
+//           |  ;'aorta \      / , pulmonary
+//           | ;    _,   |    / / ,  arteries
+//  superior | |   (  `-.;_,-' '-' ,
+// vena cava | `,   `-._       _,-'_
+//           |,-`.    `.)    ,<_,-'_, pulmonary
+//          ,'    `.   /   ,'  `;-' _,  veins
+//         ;        `./   /`,    \-'
+//         | right   /   |  ;\   |\
+//         | atrium ;_,._|_,  `, ' \
+//         |        \    \ `       `,
+//         `      __ `    \   left  ;,
+//          \   ,'  `      \,  ventricle
+//           \_(            ;,      ;;
+//           |  \           `;,     ;;
+//  inferior |  |`.          `;;,   ;'
+// vena cava |  |  `-.        ;;;;,;'
+//           |  |    |`-.._  ,;;;;;'
+//           |  |    |   | ``';;;'  FL
+//                   aorta
+
 
 //print result
 
