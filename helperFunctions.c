@@ -35,7 +35,7 @@ int roundFloat(float value)
 
 int	lin_int(int x1, int y1, int x2, int y2, int x)
 {
-	int y = y1 + (((x - x1)*(y2 - y1)) / (x2 - x1));
+	int y = y1 + (((x - x1) * (y2 - y1)) / (x2 - x1));
 	return (y);
 }
 
