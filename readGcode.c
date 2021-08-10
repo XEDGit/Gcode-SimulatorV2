@@ -3,7 +3,7 @@
 //
 // print rateo is expressed like 1:<rateo>
 //
-// file name must be the full name including extension, the full path is not needed 
+// file name must be the full name including extension, the full path is not needed
 //
 
 #include "gcodesim.h"

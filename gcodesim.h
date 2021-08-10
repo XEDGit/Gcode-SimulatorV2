@@ -1,10 +1,13 @@
+//include guard
 #ifndef GCODESIM_H
-# define GCODESIM_H
+#define GCODESIM_H
 
+//include libraries
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
 
+//operating system setting
 #ifdef _WIN32
 	#define CLEAR "cls"
 	#define RATEO_ERR "Error reading rateo, it must be between 1 and 100"
@@ -15,6 +18,7 @@
 	#define FILE_ERR "Error reading file.\n"
 #endif
 
+//structures define
 typedef struct point {
 	int x;
 	int y;
@@ -29,12 +33,12 @@ typedef struct settings {
 	int zMinMax[2];
 } settings;
 
-
+//function prototyping
 char	**mergeLayers(char **l1, char **l2, settings *currentSettings, int rateo);
 void	pointcpy(point *p1, point *p2);
 int		isDigit(char c);
 char	*advancePtoChar(char *pointer, char c);
 int		roundFloat(float value);
-int	lin_int(int x1, int y1, int x2, int y2, int x);
+int		lin_int(int x1, int y1, int x2, int y2, int x);
 
 #endif
