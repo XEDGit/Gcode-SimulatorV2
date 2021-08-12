@@ -10,6 +10,8 @@
 
 int rateo = 1;
 
+char character = 'x';
+
 settings *currentSettings;
 
 void	setZero(point *currentPoint)
@@ -125,23 +127,23 @@ int		readValuesFromLine(char *line, point *currentPoint)
 	return(0);
 }
 
-char	***allocateMatrix()
+short	***allocateMatrix()
 {
 	int	zaxis = currentSettings->zMinMax[1] / currentSettings->layerHeight;
 	int	yaxis = currentSettings->yMinMax[1] / rateo;
 	int	xaxis = currentSettings->xMinMax[1] / rateo;
 
-	char ***matrix = malloc(sizeof(char **) * zaxis + 1);
+	short ***matrix = malloc(sizeof(short **) * zaxis + 1);
 	for(int j = 0; j <= zaxis; j++)
 	{
-		char **z = malloc(sizeof(char *) * yaxis);
+		short **z = malloc(sizeof(short *) * yaxis);
 		matrix[j] = z;
 
 		for(int k = 0; k <= yaxis - 1; k++)
 		{
-			char *y = malloc(sizeof(char) * xaxis);
+			short *y = malloc(sizeof(short) * xaxis);
 			for(int j = 0; j <= xaxis - 1; j++)
-				y[j] = ' ';
+				y[j] = 0;
 			matrix[j][k] = y;
 		}
 	}
@@ -164,6 +166,19 @@ int		validateInput(int argc, char *argv[], FILE **file)
 	else if (argc == 3)
 	{
 		*file = fopen(argv[2], "r");
+		if (atoi(argv[1]) <= 100 && atoi(argv[1]) > 0)
+			rateo = atoi(argv[1]);
+		else
+		{
+			printf(RATEO_ERR);
+			return (1);
+		}
+		return (0);
+	}
+	else if (argc == 4)
+	{
+		*file = fopen(argv[2], "r");
+		character = argv[3][0];
 		if (atoi(argv[1]) <= 100 && atoi(argv[1]) > 0)
 			rateo = atoi(argv[1]);
 		else
@@ -209,12 +224,12 @@ int		clampValue(int value, int axis)
 	return (value / rateo);
 }
 
-void	lin_int_addPointToMatrix(point *current, point *old, char ***matrix)
+void	lin_int_addPointToMatrix(point *current, point *old, short ***matrix)
 {
 	point *temp = malloc(sizeof(point));
 	pointcpy(temp, old);
 	//first point
-	matrix[clampValue(temp->z, 2)][clampValue(temp->y, 1)][clampValue(temp->x, 0)] = 'x';
+	matrix[clampValue(temp->z, 2)][clampValue(temp->y, 1)][clampValue(temp->x, 0)] = 1;
 	//linear interpolation
 	if (temp->x > current->x)
 	{
@@ -222,7 +237,7 @@ void	lin_int_addPointToMatrix(point *current, point *old, char ***matrix)
 		{
 			temp->x--;
 			temp->y = lin_int(old->x, old->y, current->x, current->y, temp->x);
-			matrix[clampValue(temp->z, 2)][clampValue(temp->y, 1)][clampValue(temp->x, 0)] = 'x';
+			matrix[clampValue(temp->z, 2)][clampValue(temp->y, 1)][clampValue(temp->x, 0)] = 1;
 		}
 	}
 	else if (temp->x < current->x)
@@ -231,7 +246,7 @@ void	lin_int_addPointToMatrix(point *current, point *old, char ***matrix)
 		{
 			temp->x++;
 			temp->y = lin_int(old->x, old->y, current->x, current->y, temp->x);
-			matrix[clampValue(temp->z, 2)][clampValue(temp->y, 1)][clampValue(temp->x, 0)] = 'x';
+			matrix[clampValue(temp->z, 2)][clampValue(temp->y, 1)][clampValue(temp->x, 0)] = 1;
 		}
 	}
 	else
@@ -241,7 +256,7 @@ void	lin_int_addPointToMatrix(point *current, point *old, char ***matrix)
 			while (temp->y != current->y || temp->x != current->x)
 			{
 				temp->y--;
-				matrix[clampValue(temp->z, 2)][clampValue(temp->y, 1)][clampValue(temp->x, 0)] = 'x';
+				matrix[clampValue(temp->z, 2)][clampValue(temp->y, 1)][clampValue(temp->x, 0)] = 1;
 			}
 		}
 		else if (temp->y < current->y)
@@ -249,20 +264,20 @@ void	lin_int_addPointToMatrix(point *current, point *old, char ***matrix)
 			while (temp->y != current->y || temp->x != current->x)
 			{
 				temp->y++;
-				matrix[clampValue(current->z, 2)][clampValue(temp->y, 1)][clampValue(temp->x, 0)] = 'x';
+				matrix[clampValue(current->z, 2)][clampValue(temp->y, 1)][clampValue(temp->x, 0)] = 1;
 			}
 		}
 		else
 		{
-			matrix[clampValue(current->z, 2)][clampValue(temp->y, 1)][clampValue(temp->x, 0)] = 'x';
+			matrix[clampValue(current->z, 2)][clampValue(temp->y, 1)][clampValue(temp->x, 0)] = 1;
 		}
 	}
 	//end point //don't know if it's needed //leave it there for now
-	matrix[clampValue(temp->z, 2)][clampValue(temp->y, 1)][clampValue(temp->x, 0)] = 'x';
+	matrix[clampValue(temp->z, 2)][clampValue(temp->y, 1)][clampValue(temp->x, 0)] = 1;
 	free(temp);
 }
 
-void	printMatrix(char ***matrix)
+void	printMatrix(short ***matrix)
 {
 	for(int j = 1; j < currentSettings->zMinMax[1] / currentSettings->layerHeight; j++)
 	{
@@ -271,13 +286,16 @@ void	printMatrix(char ***matrix)
 		for(int k = 0; k <= (currentSettings->yMinMax[1] / rateo) - 1; k++)
 		{
 			for(int l = 0; l <= (currentSettings->xMinMax[1] / rateo) - 1; l++)
-				printf("%c ", matrix[j][k][l]);
+				if (matrix[j][k][l])
+					printf("%c ", character);
+				else
+					printf("  ");
 			printf("\n");
 		}
 	}
 }
 
-char ***readAllLines(char ***matrix, FILE **file)
+short ***readAllLines(short ***matrix, FILE **file)
 {
 	char line[256];
 	int readSettings = 1;
@@ -313,7 +331,7 @@ char ***readAllLines(char ***matrix, FILE **file)
 	return (matrix);
 }
 
-void freeMatrix(char ***matrix)
+void freeMatrix(short ***matrix)
 {
 	int	zaxis = currentSettings->zMinMax[1] / currentSettings->layerHeight;
 	int	yaxis = currentSettings->yMinMax[1] / rateo;
@@ -331,7 +349,7 @@ void freeMatrix(char ***matrix)
 int main(int argc, char *argv[]) 
 {
 	FILE *file;
-	char ***matrix;
+	short ***matrix;
 
 	currentSettings = malloc(sizeof(settings));
 	if (validateInput(argc, argv, &file))
