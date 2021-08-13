@@ -6,7 +6,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
-#include <math.h>
 
 //operating system setting
 #ifdef _WIN32
@@ -44,6 +43,7 @@ int		lin_int(int x1, int y1, int x2, int y2, int x);
 float		*pointToArray(point *pt);
 point	*arrayToPoint(float *pt);
 short	***allocateMatrix();
+void	free2DF(float **p);
 short	***matRotation(short ***matrix, int	axis, int angle);
 int		clampValue(int value, int axis);
 float	*matMul (float **projection, int size, point *pointData);

@@ -8,7 +8,7 @@
 
 #include "gcodesim.h"
 
-int rateo = 5;
+int rateo = 1;
 
 char character = 'x';
 
@@ -133,7 +133,7 @@ short	***allocateMatrix()
 	int	yaxis = currentSettings->yMinMax[1] / rateo;
 	int	xaxis = currentSettings->xMinMax[1] / rateo;
 
-	short ***matrix = malloc(sizeof(short **) * zaxis + 1);
+	short ***matrix = malloc(sizeof(short **) * (zaxis + 1));
 	for(int j = 0; j <= zaxis; j++)
 	{
 		short **z = malloc(sizeof(short *) * yaxis);
@@ -281,7 +281,7 @@ void	printMatrix(short ***matrix)
 {
 	for(int j = 1; j < currentSettings->zMinMax[1] / currentSettings->layerHeight; j++)
 	{
-		system(CLEAR); //CLEAR defined in gcodesim.h
+		//system(CLEAR); //CLEAR defined in gcodesim.h
 		printf("====================== LAYER %d =========================================\n", j);
 		for(int k = 0; k <= (currentSettings->yMinMax[1] / rateo) - 1; k++)
 		{
@@ -339,7 +339,7 @@ void freeMatrix(short ***matrix)
 
 	for(int j = 0; j <= zaxis; j++)
 	{
-		for(int k = 0; k <= yaxis - 1; k++)
+		for(int k = 0; k < yaxis; k++)
 			free(matrix[j][k]);
 		free(matrix[j]);
 	}
@@ -362,7 +362,9 @@ int main(int argc, char *argv[])
 		return (0);
 	}
 	printMatrix(matrix);
-	matrix = matRotation(matrix, 0, 90);
+	short	***temp = matRotation(matrix, 0, 90);
+	freeMatrix(matrix);
+	matrix = temp;
 	printMatrix(matrix);
 	freeMatrix(matrix);
 	return (0);

@@ -33,8 +33,8 @@ point	*arrayToPoint(float *pt)
 point	*distToCenter(int x, int y, int z)
 {
 	int	zaxis = (currentSettings->zMinMax[1] / currentSettings->layerHeight) / 2;
-	int	yaxis = (currentSettings->yMinMax[1] / rateo) / 2;
-	int	xaxis = (currentSettings->xMinMax[1] / rateo) / 2;
+	int	yaxis = ((currentSettings->yMinMax[1] / rateo) / 2) + 1;
+	int	xaxis = ((currentSettings->xMinMax[1] / rateo) / 2) + 1;
 	point	*p = malloc(sizeof(point));
 	p->x = x - xaxis;
 	p->y = y - yaxis;
@@ -77,9 +77,12 @@ short	***matRotation(short ***matrix, int	axis, int angle)
 	if(!angle)
 		return (matrix);
 
-	int	zaxis = currentSettings->zMinMax[1] / currentSettings->layerHeight;
-	int	yaxis = currentSettings->yMinMax[1] / rateo;
-	int	xaxis = currentSettings->xMinMax[1] / rateo;
+	float	*multiplied;
+	float	**projection;
+	point	*pos;
+	int		zaxis = currentSettings->zMinMax[1] / currentSettings->layerHeight;
+	int		yaxis = currentSettings->yMinMax[1] / rateo;
+	int		xaxis = currentSettings->xMinMax[1] / rateo;
 	short	***result = allocateMatrix();
 
 	for(int j = 0; j < zaxis; j++)
@@ -90,12 +93,17 @@ short	***matRotation(short ***matrix, int	axis, int angle)
 			{
 				if (!matrix[j][k][i])
 					continue;
-				point	*pos = distToCenter(i, k, j);
-				pos = findPointInMatrix(matMul(rotationGen(angle, axis), 3, pos));
+				pos = distToCenter(i, k, j);
+				projection = rotationGen(angle, axis);
+				multiplied = matMul(projection, 3, pos);
+				pos = findPointInMatrix(multiplied);
 				result[clampValue(pos->z, 2)][clampValue(pos->y, 1)][clampValue(pos->x, 0)] = 1;
+				free(pos);
+				free(multiplied);
 			}
 		}
 	}
+	free2DF(projection);
 	return (result);
 }
 
@@ -111,6 +119,13 @@ float	**allocate2DF()
 		res[i] = p;
 	}
 	return (res);
+}
+
+void	free2DF(float **p)
+{
+	for (int i = 0; i < 3; i++)
+		free(p[i]);
+	free(p);
 }
 
 float	divide(int value)
@@ -141,41 +156,64 @@ float	**rotationGen(int angle, int axis)
 		firstRotation = 0;
 		stored = allocate2DF();
 	}
-	
-	//checking 0 exception but value will never be 0
-	//if (!angle)
-	//	return (nullProj);
 	if (lastAngle == angle)
 		return (stored);
 	else
 	{
 		result = allocate2DF();
+
+		//2 digits rounded version
+		//
+		// if (!axis)
+		// {
+		// 	result[0][0] = divide(roundFloat(cos(angle) * 100));
+		// 	result[0][1] = divide(roundFloat(sin(angle) * -1 * 100));
+		// 	result[1][0] = divide(roundFloat(sin(angle) * 100));
+		// 	result[1][1] = divide(roundFloat(cos(angle) * 100));
+		// 	result[2][2] = 1;
+		// }
+		// else if (axis == 1)
+		// {
+		// 	result[0][0] = divide(roundFloat(cos(angle) * 100));
+		// 	result[0][2] = divide(roundFloat(sin(angle) * 100));
+		// 	result[1][1] = 1;
+		// 	result[2][0] = divide(roundFloat(sin(angle) * -1 * 100));
+		// 	result[2][2] = divide(roundFloat(cos(angle) * 100));
+		// }
+		// else
+		// {
+		// 	result[0][0] = 1;
+		// 	result[1][1] = divide(roundFloat(cos(angle) * 100));
+		// 	result[1][2] = divide(roundFloat(sin(angle) * -1 * 100));
+		// 	result[2][1] = divide(roundFloat(sin(angle) * 100));
+		// 	result[2][2] = divide(roundFloat(cos(angle) * 100));
+		// }
 		if (!axis)
 		{
-			result[0][0] = divide(roundFloat(cos(angle) * 100));
-			result[0][1] = divide(roundFloat(sin(angle) * -1 * 100));
-			result[1][0] = divide(roundFloat(sin(angle) * 100));
-			result[1][1] = divide(roundFloat(cos(angle) * 100));
+			result[0][0] = cos(angle);
+			result[0][1] = sin(angle) * -1;
+			result[1][0] = sin(angle);
+			result[1][1] = cos(angle);
 			result[2][2] = 1;
 		}
 		else if (axis == 1)
 		{
-			result[0][0] = divide(roundFloat(cos(angle) * 100));
-			result[0][2] = divide(roundFloat(sin(angle) * 100));
+			result[0][0] = cos(angle);
+			result[0][2] = sin(angle);
 			result[1][1] = 1;
-			result[2][0] = divide(roundFloat(sin(angle) * -1 * 100));
-			result[2][2] = divide(roundFloat(cos(angle) * 100));
+			result[2][0] = sin(angle) * -1;
+			result[2][2] = cos(angle);
 		}
 		else
 		{
 			result[0][0] = 1;
-			result[1][1] = divide(roundFloat(cos(angle) * 100));
-			result[1][2] = divide(roundFloat(sin(angle) * -1 * 100));
-			result[2][1] = divide(roundFloat(sin(angle) * 100));
-			result[2][2] = divide(roundFloat(cos(angle) * 100));
+			result[1][1] = cos(angle);
+			result[1][2] = sin(angle) * -1;
+			result[2][1] = sin(angle);
+			result[2][2] = cos(angle);
 		}
 		lastAngle = angle;
-		free(stored);
+		free2DF(stored);
 		stored = result;
 		return (result);
 	}
