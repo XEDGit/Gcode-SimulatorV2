@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <math.h>
 
 //operating system setting
 #ifdef _WIN32
@@ -40,8 +41,11 @@ int		isDigit(char c);
 char	*advancePtoChar(char *pointer, char c);
 int		roundFloat(float value);
 int		lin_int(int x1, int y1, int x2, int y2, int x);
-int		*pointToArray(point *pt);
-point	*arrayToPoint(int *pt);
-point	*matmul (int projection[][3], int size, point *pointData);
+float		*pointToArray(point *pt);
+point	*arrayToPoint(float *pt);
+short	***allocateMatrix();
+short	***matRotation(short ***matrix, int	axis, int angle);
+point	*matMul (float **projection, int size, point *pointData);
+float	**rotationGen(int angle, int axis);
 
 #endif

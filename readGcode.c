@@ -142,8 +142,8 @@ short	***allocateMatrix()
 		for(int k = 0; k <= yaxis - 1; k++)
 		{
 			short *y = malloc(sizeof(short) * xaxis);
-			for(int j = 0; j <= xaxis - 1; j++)
-				y[j] = 0;
+			for(int i = 0; i <= xaxis - 1; i++)
+				y[i] = 0;
 			matrix[j][k] = y;
 		}
 	}
@@ -361,6 +361,8 @@ int main(int argc, char *argv[])
 		printf("Error reading file.");
 		return (0);
 	}
+	printMatrix(matrix);
+	matrix = matRotation(matrix, 1, 90);
 	printMatrix(matrix);
 	freeMatrix(matrix);
 	return (0);
