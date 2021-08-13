@@ -45,7 +45,8 @@ float		*pointToArray(point *pt);
 point	*arrayToPoint(float *pt);
 short	***allocateMatrix();
 short	***matRotation(short ***matrix, int	axis, int angle);
-point	*matMul (float **projection, int size, point *pointData);
+int		clampValue(int value, int axis);
+float	*matMul (float **projection, int size, point *pointData);
 float	**rotationGen(int angle, int axis);
 
 #endif

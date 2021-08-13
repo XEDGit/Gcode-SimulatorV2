@@ -24,34 +24,50 @@ point	*arrayToPoint(float *pt)
 {
 	point	*p = malloc(sizeof(point));
 	p->x = pt[0];
-	p->y = pt[1];
-	p->z = pt[2];
+	p->z = pt[1];
+	p->y = pt[2];
 	p->mode = 0;
 	return (p);
 }
 
-point	*newPoint(int x, int y, int z)
+point	*distToCenter(int x, int y, int z)
 {
+	int	zaxis = (currentSettings->zMinMax[1] / currentSettings->layerHeight) / 2;
+	int	yaxis = (currentSettings->yMinMax[1] / rateo) / 2;
+	int	xaxis = (currentSettings->xMinMax[1] / rateo) / 2;
 	point	*p = malloc(sizeof(point));
-	p->x = x;
-	p->y = y;
-	p->z = z;
+	p->x = x - xaxis;
+	p->y = y - yaxis;
+	p->z = z - zaxis;
 	p->mode = 0;
 }
 
-point	*matMul(float **projection, int size, point *pointData)
+point	*findPointInMatrix(float *pt)
+{
+	int	zaxis = (currentSettings->zMinMax[1] / currentSettings->layerHeight) / 2;
+	int	yaxis = (currentSettings->yMinMax[1] / rateo) / 2;
+	int	xaxis = (currentSettings->xMinMax[1] / rateo) / 2;
+	point	*p = malloc(sizeof(point));
+	p->x = (int) pt[0] + xaxis;
+	p->y = (int) pt[1] + yaxis;
+	p->z = (int) pt[2] + zaxis;
+	p->mode = 0;
+}
+
+float	*matMul(float **projection, int size, point *pointData)
 {
 	float *pt = pointToArray(pointData);
 	float *result = malloc(sizeof(float) * 3);
+
 	for (int i = 0; i < size; i++)
 	{
 		float temp = 0;
 		for (int j = 0; j < 3; j++)
-			temp += (float) pt[j] * projection[i][j];
+			temp += pt[j] * projection[i][j];
 		result[i] = temp;
 	}
 	free(pt);
-	return (arrayToPoint(result));
+	return (result);
 }
 
 //axis:
@@ -72,11 +88,15 @@ short	***matRotation(short ***matrix, int	axis, int angle)
 		{
 			for(int i = 0; i < xaxis; i++)
 			{
-				point	*pos = matMul(rotationGen(angle, axis), 3, newPoint(j, k, i));
-				result[pos->z][pos->y][pos->x] = 1;
+				if (!matrix[j][k][i])
+					continue;
+				point	*pos = distToCenter(i, k, j);
+				pos = findPointInMatrix(matMul(rotationGen(angle, axis), 3, pos));
+				result[clampValue(pos->z, 2)][clampValue(pos->y, 1)][clampValue(pos->x, 0)] = 1;
 			}
 		}
 	}
+	return (result);
 }
 
 float	**allocate2DF()
@@ -90,6 +110,21 @@ float	**allocate2DF()
 		p[2] = 0;
 		res[i] = p;
 	}
+	return (res);
+}
+
+float	divide(int value)
+{
+	int		neg = 0;
+	float	res = (float) value;
+	if (res < 0)
+	{
+		neg = 1;
+		res *= -1;
+	}
+	res /= 100;
+	if (neg)
+		res *= -1;
 	return (res);
 }
 
@@ -117,27 +152,27 @@ float	**rotationGen(int angle, int axis)
 		result = allocate2DF();
 		if (!axis)
 		{
-			result[0][0] = cos(angle);
-			result[0][1] = sin(angle) * -1;4;
-			result[1][0] = sin(angle);
-			result[1][1] = cos(angle);
+			result[0][0] = divide(roundFloat(cos(angle) * 100));
+			result[0][1] = divide(roundFloat(sin(angle) * -1 * 100));
+			result[1][0] = divide(roundFloat(sin(angle) * 100));
+			result[1][1] = divide(roundFloat(cos(angle) * 100));
 			result[2][2] = 1;
 		}
 		else if (axis == 1)
 		{
-			result[0][0] = cos(angle);
-			result[0][2] = sin(angle);
+			result[0][0] = divide(roundFloat(cos(angle) * 100));
+			result[0][2] = divide(roundFloat(sin(angle) * 100));
 			result[1][1] = 1;
-			result[2][0] = sin(angle) * -1;4;
-			result[2][2] = cos(angle);
+			result[2][0] = divide(roundFloat(sin(angle) * -1 * 100));
+			result[2][2] = divide(roundFloat(cos(angle) * 100));
 		}
 		else
 		{
 			result[0][0] = 1;
-			result[1][1] = cos(angle);
-			result[1][2] = sin(angle) * -1;4;
-			result[2][1] = sin(angle);
-			result[2][2] = cos(angle);
+			result[1][1] = divide(roundFloat(cos(angle) * 100));
+			result[1][2] = divide(roundFloat(sin(angle) * -1 * 100));
+			result[2][1] = divide(roundFloat(sin(angle) * 100));
+			result[2][2] = divide(roundFloat(cos(angle) * 100));
 		}
 		lastAngle = angle;
 		free(stored);

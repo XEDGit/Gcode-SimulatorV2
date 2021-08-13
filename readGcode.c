@@ -8,7 +8,7 @@
 
 #include "gcodesim.h"
 
-int rateo = 1;
+int rateo = 5;
 
 char character = 'x';
 
@@ -192,9 +192,9 @@ int		validateInput(int argc, char *argv[], FILE **file)
 	return (0);
 }
 
+//axis 0 = x; 1 = y; 2 = z
 int		clampValue(int value, int axis) 
 {
-	//axis 0 = x; 1 = y; 2 = z
 	value--;
 	if (value < 0)
 		value = 0;
@@ -362,7 +362,7 @@ int main(int argc, char *argv[])
 		return (0);
 	}
 	printMatrix(matrix);
-	matrix = matRotation(matrix, 1, 90);
+	matrix = matRotation(matrix, 0, 90);
 	printMatrix(matrix);
 	freeMatrix(matrix);
 	return (0);

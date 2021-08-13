@@ -28,9 +28,18 @@ void	pointcpy(point *p1, point *p2)
 
 int roundFloat(float value)
 {
-	if(value - (int) value >= 0.5f)
-		return ((int) (value + 0.5f));
-	return ((int)value);
+	if (value < 0)
+	{
+		if((value - (int) value) * -1 >= 0.5f)
+			return ((int) (value + 0.5f));
+		return ((int)value);
+	}
+	else
+	{
+		if(value - (int) value >= 0.5f)
+			return ((int) (value + 0.5f));
+		return ((int)value);
+	}
 }
 
 int	lin_int(int x1, int y1, int x2, int y2, int x)
