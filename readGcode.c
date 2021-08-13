@@ -139,10 +139,10 @@ short	***allocateMatrix()
 		short **z = malloc(sizeof(short *) * yaxis);
 		matrix[j] = z;
 
-		for(int k = 0; k <= yaxis - 1; k++)
+		for(int k = 0; k < yaxis; k++)
 		{
 			short *y = malloc(sizeof(short) * xaxis);
-			for(int i = 0; i <= xaxis - 1; i++)
+			for(int i = 0; i < xaxis; i++)
 				y[i] = 0;
 			matrix[j][k] = y;
 		}
