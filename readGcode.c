@@ -383,6 +383,7 @@ int	outputcl(short ***matrix, int argc, char *argv[], FILE *file , int axis, flo
 	system(CLEAR);
 	printLayer(matrix , 0);
 	freeMatrix(matrix);
+	return (0);
 }
 
 int	output(short ***matrix, int argc, char *argv[], FILE *file , int axis, float angle)
@@ -394,6 +395,7 @@ int	output(short ***matrix, int argc, char *argv[], FILE *file , int axis, float
 		matrix[0] = mergeLayers(matrix[0], matrix[l]);
 	system(CLEAR);
 	printLayer(matrix , 0);
+	return (0);
 }
 
 int main(int argc, char *argv[]) 
