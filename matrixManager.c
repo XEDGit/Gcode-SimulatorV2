@@ -36,13 +36,11 @@ point	*arrayToPoint(double *pt)
 	return (p);
 }
 
-int vals = 0;
-
 double	*distToCenter(int x, int y, int z)
 {
 	double	zaxis = (currentSettings->zMinMax[1] / currentSettings->layerHeight) / 2;
-	double	yaxis = ((currentSettings->yMinMax[1] / rateo)) / 2;
-	double	xaxis = ((currentSettings->xMinMax[1] / rateo)) / 2;
+	double	yaxis = ((currentSettings->yMinMax[1] / rateo) - 1) / 2;
+	double	xaxis = ((currentSettings->xMinMax[1] / rateo) - 1) / 2;
 	double	*p = malloc(sizeof(double) * 3);
 	p[0] = x - xaxis;
 	p[1] = y - yaxis;
@@ -53,8 +51,8 @@ double	*distToCenter(int x, int y, int z)
 point	*findPointInMatrix(double *pt)
 {
 	double	zaxis = (currentSettings->zMinMax[1] / currentSettings->layerHeight) / 2;
-	double	yaxis = ((currentSettings->yMinMax[1] / rateo)) / 2;
-	double	xaxis = ((currentSettings->xMinMax[1] / rateo)) / 2;
+	double	yaxis = ((currentSettings->yMinMax[1] / rateo) - 1) / 2;
+	double	xaxis = ((currentSettings->xMinMax[1] / rateo) - 1) / 2;
 	point	*p = malloc(sizeof(point));
 	p->x = (int) pt[0] + xaxis;
 	p->y = (int) pt[1] + yaxis;

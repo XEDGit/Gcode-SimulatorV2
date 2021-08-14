@@ -376,12 +376,12 @@ int main(int argc, char *argv[])
 		return (0);
 	}
 	printLayer(matrix);
-	matrix = matRotation(matrix, 0, degtorad(90));
+	matrix = matRotation(matrix, 2, degtorad(90));
 	printLayer(matrix);
 	freeMatrix(matrix);
 	validateInput(argc, argv, &file);
 	matrix = readAllLines(matrix, &file);
-	matrix = matRotation(matrix, 0, degtorad(180));
+	matrix = matRotation(matrix, 1, degtorad(180));
 	printLayer(matrix);
 	freeMatrix(matrix);
 	return (0);
