@@ -45,16 +45,16 @@ int		validateInput(int argc, char *argv[], FILE **file);
 int		clampValue(int value, int axis);
 void	lin_int_addPointToMatrix(point *current, point *old, short ***matrix);
 void	printMatrix(short ***matrix);
-short ***readAllLines(short ***matrix, FILE **file);
-void freeMatrix(short ***matrix);
-char *advancePtoChar(char *pointer, char c);
-int isDigit(char c);
+short	***readAllLines(short ***matrix, FILE **file);
+void	freeMatrix(short ***matrix);
+char	*advancePtoChar(char *pointer, char c);
+int		isDigit(char c);
 void	pointcpy(point *p1, point *p2);
-int roundFloat(float value);
-int	lin_int(int x1, int y1, int x2, int y2, int x);
-char	**mergeLayers(char **l1, char **l2, settings *currentSettings, int rateo);
+int		roundFloat(float value);
+int		lin_int(int x1, int y1, int x2, int y2, int x);
+short	**mergeLayers(short **l1, short **l2);
 double	degtorad(int deg);
-double *pointToArray(point *pt);
+double	*pointToArray(point *pt);
 point	*arrayToPoint(double *pt);
 double	*distToCenter(int x, int y, int z);
 point	*findPointInMatrix(double *pt);
@@ -63,5 +63,10 @@ short	***matRotation(short ***matrix, int	axis, float angle);
 double	**allocate2DF();
 void	free2DF(double **p);
 double	**rotationGen(float angle, int axis);
+char *getShadeByPoint(int layer);
+
+//extern variables declaration
+extern settings *currentSettings;
+extern int		rateo;
 
 #endif

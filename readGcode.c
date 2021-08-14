@@ -228,8 +228,9 @@ void	lin_int_addPointToMatrix(point *current, point *old, short ***matrix)
 {
 	point *temp = malloc(sizeof(point));
 	pointcpy(temp, old);
+	int	maxZ = currentSettings->zMinMax[1] / currentSettings->layerHeight;
 	//first point
-	matrix[clampValue(temp->z, 2)][clampValue(temp->y, 1)][clampValue(temp->x, 0)] = 1;
+	matrix[clampValue(temp->z, 2)][clampValue(temp->y, 1)][clampValue(temp->x, 0)] = temp->z / (maxZ / 8);
 	//linear interpolation
 	if (temp->x > current->x)
 	{
@@ -237,7 +238,7 @@ void	lin_int_addPointToMatrix(point *current, point *old, short ***matrix)
 		{
 			temp->x--;
 			temp->y = lin_int(old->x, old->y, current->x, current->y, temp->x);
-			matrix[clampValue(temp->z, 2)][clampValue(temp->y, 1)][clampValue(temp->x, 0)] = 1;
+			matrix[clampValue(temp->z, 2)][clampValue(temp->y, 1)][clampValue(temp->x, 0)] = temp->z / (maxZ / 8);
 		}
 	}
 	else if (temp->x < current->x)
@@ -246,7 +247,7 @@ void	lin_int_addPointToMatrix(point *current, point *old, short ***matrix)
 		{
 			temp->x++;
 			temp->y = lin_int(old->x, old->y, current->x, current->y, temp->x);
-			matrix[clampValue(temp->z, 2)][clampValue(temp->y, 1)][clampValue(temp->x, 0)] = 1;
+			matrix[clampValue(temp->z, 2)][clampValue(temp->y, 1)][clampValue(temp->x, 0)] = temp->z / (maxZ / 8);
 		}
 	}
 	else
@@ -256,7 +257,7 @@ void	lin_int_addPointToMatrix(point *current, point *old, short ***matrix)
 			while (temp->y != current->y || temp->x != current->x)
 			{
 				temp->y--;
-				matrix[clampValue(temp->z, 2)][clampValue(temp->y, 1)][clampValue(temp->x, 0)] = 1;
+				matrix[clampValue(temp->z, 2)][clampValue(temp->y, 1)][clampValue(temp->x, 0)] = temp->z / (maxZ / 8);
 			}
 		}
 		else if (temp->y < current->y)
@@ -264,16 +265,16 @@ void	lin_int_addPointToMatrix(point *current, point *old, short ***matrix)
 			while (temp->y != current->y || temp->x != current->x)
 			{
 				temp->y++;
-				matrix[clampValue(current->z, 2)][clampValue(temp->y, 1)][clampValue(temp->x, 0)] = 1;
+				matrix[clampValue(current->z, 2)][clampValue(temp->y, 1)][clampValue(temp->x, 0)] = temp->z / (maxZ / 8);
 			}
 		}
 		else
 		{
-			matrix[clampValue(current->z, 2)][clampValue(temp->y, 1)][clampValue(temp->x, 0)] = 1;
+			matrix[clampValue(current->z, 2)][clampValue(temp->y, 1)][clampValue(temp->x, 0)] = temp->z / (maxZ / 8);
 		}
 	}
 	//end point //don't know if it's needed //leave it there for now
-	matrix[clampValue(temp->z, 2)][clampValue(temp->y, 1)][clampValue(temp->x, 0)] = 1;
+	matrix[clampValue(temp->z, 2)][clampValue(temp->y, 1)][clampValue(temp->x, 0)] = temp->z / (maxZ / 8);
 	free(temp);
 }
 
@@ -281,7 +282,7 @@ void	printMatrix(short ***matrix)
 {
 	for(int j = 1; j < currentSettings->zMinMax[1] / currentSettings->layerHeight; j++)
 	{
-		system(CLEAR); //CLEAR defined in gcodesim.h
+		//system(CLEAR); //CLEAR defined in gcodesim.h
 		printf("====================== LAYER %d =========================================\n", j);
 		for(int k = 0; k <= (currentSettings->yMinMax[1] / rateo) - 1; k++)
 		{
@@ -295,14 +296,14 @@ void	printMatrix(short ***matrix)
 	}
 }
 
-void	printLayer(short ***matrix)
+void	printLayer(short ***matrix , int layer)
 {
-		printf("====================== LAYER 1 ===================================================================================================================================\n");
+		printf("====================== LAYER %d ===================================================================================================================================\n", layer);
 		for(int k = 0; k <= (currentSettings->yMinMax[1] / rateo) - 1; k++)
 		{
 			for(int l = 0; l <= (currentSettings->xMinMax[1] / rateo) - 1; l++)
-				if (matrix[1][k][l])
-					printf("%c ", character);
+				if (matrix[layer][k][l])
+					printf("%s ", getShadeByPoint(matrix[layer][k][l]));
 				else
 					printf("  ");
 			printf("\n");
@@ -360,6 +361,41 @@ void freeMatrix(short ***matrix)
 	free(matrix);
 }
 
+//axis:
+//	x:	2	|	y:	1	|	z:	0
+int	outputcl(short ***matrix, int argc, char *argv[], FILE *file , int axis, float angle)
+{
+	freeMatrix(matrix);
+	if (validateInput(argc, argv, &file))
+		return (1);
+	if (file != 0)
+		matrix = readAllLines(matrix, &file);
+	else
+	{
+		printf("Error reading file.");
+		return (1);
+	}
+	matrix = matRotation(matrix, 0, degtorad(angle));
+	matrix = matRotation(matrix, 1, degtorad(angle));
+
+	for(int l = 1; l < currentSettings->zMinMax[1] / currentSettings->layerHeight; l++)
+		matrix[0] = mergeLayers(matrix[0], matrix[l]);
+	system(CLEAR);
+	printLayer(matrix , 0);
+	freeMatrix(matrix);
+}
+
+int	output(short ***matrix, int argc, char *argv[], FILE *file , int axis, float angle)
+{
+	matrix = matRotation(matrix, 0, degtorad(angle));
+	matrix = matRotation(matrix, 1, degtorad(angle));
+
+	for(int l = 1; l < currentSettings->zMinMax[1] / currentSettings->layerHeight; l++)
+		matrix[0] = mergeLayers(matrix[0], matrix[l]);
+	system(CLEAR);
+	printLayer(matrix , 0);
+}
+
 int main(int argc, char *argv[]) 
 {
 	FILE *file;
@@ -373,17 +409,16 @@ int main(int argc, char *argv[])
 	else
 	{
 		printf("Error reading file.");
-		return (0);
+		return (1);
 	}
-	printLayer(matrix);
-	matrix = matRotation(matrix, 2, degtorad(90));
-	printLayer(matrix);
-	freeMatrix(matrix);
-	validateInput(argc, argv, &file);
-	matrix = readAllLines(matrix, &file);
-	matrix = matRotation(matrix, 1, degtorad(180));
-	printLayer(matrix);
-	freeMatrix(matrix);
+
+	while (1)
+		for (int i = 0; i < 360; i++)
+			output(matrix, argc, argv, file, 1, i);
+	
+	// printf("%s", getShadeByPoint(20));
+	//printf("\u258A\n");
+	
 	return (0);
 }
 

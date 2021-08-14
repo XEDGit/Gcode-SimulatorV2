@@ -1,8 +1,6 @@
 #include "gcodesim.h"
 #include "projections.h"
 
-extern settings	*currentSettings;
-extern int		rateo;
 int firstRotation = 1;
 
 int nullProj[3][3] = {
@@ -110,7 +108,7 @@ short	***matRotation(short ***matrix, int	axis, float angle)
 				pos = findPointInMatrix(multiplied);
 				// if (j == 1)
 				// 	printf("final		|	x: %d, y: %d, z: %d\n", pos->x, pos->y, pos->z);
-				result[clampValue(pos->z, 2)][clampValue(pos->y, 1)][clampValue(pos->x, 0)] = 1;
+				result[clampValue(pos->z, 2)][clampValue(pos->y, 1)][clampValue(pos->x, 0)] = matrix[j][k][i];
 				free(pos);
 				free(origin);
 				free(multiplied);

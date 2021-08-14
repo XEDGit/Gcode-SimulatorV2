@@ -49,23 +49,49 @@ int	lin_int(int x1, int y1, int x2, int y2, int x)
 }
 
 
-char	**mergeLayers(char **l1, char **l2, settings *currentSettings, int rateo)
+short	**mergeLayers(short **l1, short **l2)
 {
-	char	**res = malloc(sizeof(char *) * currentSettings->yMinMax[1]);
-	for (int i = 0; i < currentSettings->yMinMax[1] - 1; i++)
+	// short	**res = malloc(sizeof(short *) * currentSettings->yMinMax[1]);
+	// for (int i = 0; i < currentSettings->yMinMax[1] -1; i++)
+	// {
+	// 	res[i] = malloc(currentSettings->xMinMax[1]);
+	// 	for (int j = 0; j < currentSettings->xMinMax[1] - 1; j++)
+	// 		res[i][j] = 0;
+	// }
+	for (int i = 0; i < (currentSettings->yMinMax[1] / rateo) - 1; i++)
 	{
-		char	*temp = malloc(currentSettings->xMinMax[1]);
-		for (int j = 0; j < currentSettings->xMinMax[1] - 1; j++)
-			temp[j] = ' ';
-		res[i] = temp;
-	}
-	for (int i = 0; i < (currentSettings->yMinMax[1] / rateo) - 10; i++)
-	{
-		for (int j = 0; j < (currentSettings->xMinMax[1] / rateo) - 20; j++)
+		for (int j = 0; j < (currentSettings->xMinMax[1] / rateo) - 1; j++)
 		{
-			if (l2[i][j] == 'x' || l1[i][j] == 'x')
-				res[i][j] = 'x';
+			if (l2[i][j] != 0)
+				l1[i][j] = l2[i][j];
 		}
 	}
-	return (res);
+	return (l1);
+}
+// int getdissedbyrafcamora(char *who)
+// {
+// kill(who);
+// }
+// int main()
+// {
+// 	getdissedbyrafcamora("tom");
+// 	return (0);
+// }
+
+char * getShadeByPoint(int shade)
+{
+	switch(shade + 1) 
+	{
+	case 8:	 return("\u2588");  break;
+	case 7:  return("\u2589"); break;
+	case 6:  return("\u258A"); break;
+	case 5:  return("\u258B"); break;
+	case 4:  return("\u258C"); break;
+	case 3:  return("\u258D"); break;
+	case 2:  return("\u258E"); break;
+	case 1:  return("\u258F"); break;
+	default: 
+	return("\u2587");
+	 break;
+	}
 }
