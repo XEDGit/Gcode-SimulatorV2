@@ -11,16 +11,22 @@ int nullProj[3][3] = {
 	{0, 0, 1},
 };
 
-float *pointToArray(point *pt)
+double	degtorad(int deg)
 {
-	float	*p = malloc(sizeof(float) * 3);
+	double	rad = deg * M_PI / 180.0f;
+	return (rad);
+}
+
+double *pointToArray(point *pt)
+{
+	double	*p = malloc(sizeof(double) * 3);
 	p[0] = pt->x;
 	p[1] = pt->y;
 	p[2] = pt->z;
 	return (p);
 }
 
-point	*arrayToPoint(float *pt)
+point	*arrayToPoint(double *pt)
 {
 	point	*p = malloc(sizeof(point));
 	p->x = pt[0];
@@ -30,55 +36,58 @@ point	*arrayToPoint(float *pt)
 	return (p);
 }
 
-point	*distToCenter(int x, int y, int z)
+int vals = 0;
+
+double	*distToCenter(int x, int y, int z)
 {
-	int	zaxis = (currentSettings->zMinMax[1] / currentSettings->layerHeight) / 2;
-	int	yaxis = ((currentSettings->yMinMax[1] / rateo) / 2) + 1;
-	int	xaxis = ((currentSettings->xMinMax[1] / rateo) / 2) + 1;
-	point	*p = malloc(sizeof(point));
-	p->x = x - xaxis;
-	p->y = y - yaxis;
-	p->z = z - zaxis;
-	p->mode = 0;
+	double	zaxis = (currentSettings->zMinMax[1] / currentSettings->layerHeight) / 2;
+	double	yaxis = ((currentSettings->yMinMax[1] / rateo)) / 2;
+	double	xaxis = ((currentSettings->xMinMax[1] / rateo)) / 2;
+	double	*p = malloc(sizeof(double) * 3);
+	p[0] = x - xaxis;
+	p[1] = y - yaxis;
+	p[2] = z - zaxis;
+	return (p);
 }
 
-point	*findPointInMatrix(float *pt)
+point	*findPointInMatrix(double *pt)
 {
-	int	zaxis = (currentSettings->zMinMax[1] / currentSettings->layerHeight) / 2;
-	int	yaxis = (currentSettings->yMinMax[1] / rateo) / 2;
-	int	xaxis = (currentSettings->xMinMax[1] / rateo) / 2;
+	double	zaxis = (currentSettings->zMinMax[1] / currentSettings->layerHeight) / 2;
+	double	yaxis = ((currentSettings->yMinMax[1] / rateo)) / 2;
+	double	xaxis = ((currentSettings->xMinMax[1] / rateo)) / 2;
 	point	*p = malloc(sizeof(point));
 	p->x = (int) pt[0] + xaxis;
 	p->y = (int) pt[1] + yaxis;
 	p->z = (int) pt[2] + zaxis;
 	p->mode = 0;
+	return (p);
 }
 
-float	*matMul(float **projection, int size, point *pointData)
+double	*matMul(double **projection, int size, double *pt)
 {
-	float *pt = pointToArray(pointData);
-	float *result = malloc(sizeof(float) * 3);
+	double *result = malloc(sizeof(double) * 3);
 
 	for (int i = 0; i < size; i++)
 	{
-		float temp = 0;
+		double temp = 0;
 		for (int j = 0; j < 3; j++)
-			temp += pt[j] * projection[i][j];
+			{temp = temp + pt[j] * projection[i][j]; //printf(" y:	%d	->	%f	+=	%f\n", i, projection[i][j], pt[j] * projection[i][j]);
+			}
 		result[i] = temp;
 	}
-	free(pt);
 	return (result);
 }
 
 //axis:
 //	x:	2	|	y:	1	|	z:	0
-short	***matRotation(short ***matrix, int	axis, int angle)
+short	***matRotation(short ***matrix, int	axis, float angle)
 {
-	if(!angle)
+	if(angle == 0)
 		return (matrix);
 
-	float	*multiplied;
-	float	**projection;
+	double	*origin;
+	double	*multiplied;
+	double	**projection;
 	point	*pos;
 	int		zaxis = currentSettings->zMinMax[1] / currentSettings->layerHeight;
 	int		yaxis = currentSettings->yMinMax[1] / rateo;
@@ -93,26 +102,33 @@ short	***matRotation(short ***matrix, int	axis, int angle)
 			{
 				if (!matrix[j][k][i])
 					continue;
-				pos = distToCenter(i, k, j);
+				origin = distToCenter(i, k, j);
+				// if (j == 1)
+				// 	printf("\noriginal	|	x: %d, y: %d, z: %d\n", i, k, j);
 				projection = rotationGen(angle, axis);
-				multiplied = matMul(projection, 3, pos);
+				multiplied = matMul(projection, 3, origin);
+				// if (j == 1)
+				// 	printf("multiplied	|	x: %f, y: %f, z: %f\n", multiplied[0], multiplied[1], multiplied[2]);
 				pos = findPointInMatrix(multiplied);
+				// if (j == 1)
+				// 	printf("final		|	x: %d, y: %d, z: %d\n", pos->x, pos->y, pos->z);
 				result[clampValue(pos->z, 2)][clampValue(pos->y, 1)][clampValue(pos->x, 0)] = 1;
 				free(pos);
+				free(origin);
 				free(multiplied);
 			}
 		}
 	}
-	free2DF(projection);
+	//free2DF(projection);
 	return (result);
 }
 
-float	**allocate2DF()
+double	**allocate2DF()
 {
-	float	**res = malloc(sizeof(float *) * 3);
+	double	**res = malloc(sizeof(double *) * 3);
 	for (int i = 0; i < 3; i++)
 	{
-		float *p = malloc(sizeof(float) * 3);
+		double *p = malloc(sizeof(double) * 3);
 		p[0] = 0;
 		p[1] = 0;
 		p[2] = 0;
@@ -121,35 +137,20 @@ float	**allocate2DF()
 	return (res);
 }
 
-void	free2DF(float **p)
+void	free2DF(double **p)
 {
 	for (int i = 0; i < 3; i++)
 		free(p[i]);
 	free(p);
 }
 
-float	divide(int value)
-{
-	int		neg = 0;
-	float	res = (float) value;
-	if (res < 0)
-	{
-		neg = 1;
-		res *= -1;
-	}
-	res /= 100;
-	if (neg)
-		res *= -1;
-	return (res);
-}
-
 //axis:
 //	x:	2	|	y:	1	|	z:	0
-float	**rotationGen(int angle, int axis)
+double	**rotationGen(float angle, int axis)
 {
 	static int		lastAngle = 0;
-	static float	**stored;
-	float			**result;
+	static double	**stored;
+	double			**result;
 	//allocate static float 2D array
 	if (firstRotation)
 	{
@@ -161,33 +162,6 @@ float	**rotationGen(int angle, int axis)
 	else
 	{
 		result = allocate2DF();
-
-		//2 digits rounded version
-		//
-		// if (!axis)
-		// {
-		// 	result[0][0] = divide(roundFloat(cos(angle) * 100));
-		// 	result[0][1] = divide(roundFloat(sin(angle) * -1 * 100));
-		// 	result[1][0] = divide(roundFloat(sin(angle) * 100));
-		// 	result[1][1] = divide(roundFloat(cos(angle) * 100));
-		// 	result[2][2] = 1;
-		// }
-		// else if (axis == 1)
-		// {
-		// 	result[0][0] = divide(roundFloat(cos(angle) * 100));
-		// 	result[0][2] = divide(roundFloat(sin(angle) * 100));
-		// 	result[1][1] = 1;
-		// 	result[2][0] = divide(roundFloat(sin(angle) * -1 * 100));
-		// 	result[2][2] = divide(roundFloat(cos(angle) * 100));
-		// }
-		// else
-		// {
-		// 	result[0][0] = 1;
-		// 	result[1][1] = divide(roundFloat(cos(angle) * 100));
-		// 	result[1][2] = divide(roundFloat(sin(angle) * -1 * 100));
-		// 	result[2][1] = divide(roundFloat(sin(angle) * 100));
-		// 	result[2][2] = divide(roundFloat(cos(angle) * 100));
-		// }
 		if (!axis)
 		{
 			result[0][0] = cos(angle);

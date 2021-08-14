@@ -8,7 +8,7 @@ char *advancePtoChar(char *pointer, char c)
 	if (!*pointer)
 		return (0);
 	pointer++;
-	return(pointer);			
+	return(pointer);	
 }
 
 int isDigit(char c)

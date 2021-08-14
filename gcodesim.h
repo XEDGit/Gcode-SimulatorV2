@@ -34,19 +34,34 @@ typedef struct settings {
 } settings;
 
 //function prototyping
-char	**mergeLayers(char **l1, char **l2, settings *currentSettings, int rateo);
-void	pointcpy(point *p1, point *p2);
-int		isDigit(char c);
-char	*advancePtoChar(char *pointer, char c);
-int		roundFloat(float value);
-int		lin_int(int x1, int y1, int x2, int y2, int x);
-float		*pointToArray(point *pt);
-point	*arrayToPoint(float *pt);
+void	setZero(point *currentPoint);
+void	putAxisIntoStruct(char axis, point *currentPoint, char *line);
+void	putSettingsIntoStruct(char axis, int sign, char *line);
+int		findAxisValues(char **line, point *currentPoint, char axis);
+int		findSettingsValues(char **line, char axis, int sign);
+int		readValuesFromLine(char *line, point *currentPoint);
 short	***allocateMatrix();
-void	free2DF(float **p);
-short	***matRotation(short ***matrix, int	axis, int angle);
+int		validateInput(int argc, char *argv[], FILE **file);
 int		clampValue(int value, int axis);
-float	*matMul (float **projection, int size, point *pointData);
-float	**rotationGen(int angle, int axis);
+void	lin_int_addPointToMatrix(point *current, point *old, short ***matrix);
+void	printMatrix(short ***matrix);
+short ***readAllLines(short ***matrix, FILE **file);
+void freeMatrix(short ***matrix);
+char *advancePtoChar(char *pointer, char c);
+int isDigit(char c);
+void	pointcpy(point *p1, point *p2);
+int roundFloat(float value);
+int	lin_int(int x1, int y1, int x2, int y2, int x);
+char	**mergeLayers(char **l1, char **l2, settings *currentSettings, int rateo);
+double	degtorad(int deg);
+double *pointToArray(point *pt);
+point	*arrayToPoint(double *pt);
+double	*distToCenter(int x, int y, int z);
+point	*findPointInMatrix(double *pt);
+double	*matMul(double **projection, int size, double *pt);
+short	***matRotation(short ***matrix, int	axis, float angle);
+double	**allocate2DF();
+void	free2DF(double **p);
+double	**rotationGen(float angle, int axis);
 
 #endif

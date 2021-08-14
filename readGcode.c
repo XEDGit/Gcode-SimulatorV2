@@ -281,7 +281,7 @@ void	printMatrix(short ***matrix)
 {
 	for(int j = 1; j < currentSettings->zMinMax[1] / currentSettings->layerHeight; j++)
 	{
-		//system(CLEAR); //CLEAR defined in gcodesim.h
+		system(CLEAR); //CLEAR defined in gcodesim.h
 		printf("====================== LAYER %d =========================================\n", j);
 		for(int k = 0; k <= (currentSettings->yMinMax[1] / rateo) - 1; k++)
 		{
@@ -293,6 +293,20 @@ void	printMatrix(short ***matrix)
 			printf("\n");
 		}
 	}
+}
+
+void	printLayer(short ***matrix)
+{
+		printf("====================== LAYER 1 ===================================================================================================================================\n");
+		for(int k = 0; k <= (currentSettings->yMinMax[1] / rateo) - 1; k++)
+		{
+			for(int l = 0; l <= (currentSettings->xMinMax[1] / rateo) - 1; l++)
+				if (matrix[1][k][l])
+					printf("%c ", character);
+				else
+					printf("  ");
+			printf("\n");
+		}
 }
 
 short ***readAllLines(short ***matrix, FILE **file)
@@ -361,11 +375,14 @@ int main(int argc, char *argv[])
 		printf("Error reading file.");
 		return (0);
 	}
-	printMatrix(matrix);
-	short	***temp = matRotation(matrix, 0, 90);
+	printLayer(matrix);
+	matrix = matRotation(matrix, 0, degtorad(90));
+	printLayer(matrix);
 	freeMatrix(matrix);
-	matrix = temp;
-	printMatrix(matrix);
+	validateInput(argc, argv, &file);
+	matrix = readAllLines(matrix, &file);
+	matrix = matRotation(matrix, 0, degtorad(180));
+	printLayer(matrix);
 	freeMatrix(matrix);
 	return (0);
 }
