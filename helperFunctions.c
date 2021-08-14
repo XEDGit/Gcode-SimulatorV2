@@ -80,7 +80,7 @@ short	**mergeLayers(short **l1, short **l2)
 
 char * getShadeByPoint(int shade)
 {
-	shade = shade / 2;
+	shade = shade / 10;
 	switch(shade + 1) 
 	{
 	case 8: return("\u2598"); break;
