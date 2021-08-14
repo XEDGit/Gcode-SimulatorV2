@@ -129,9 +129,9 @@ int		readValuesFromLine(char *line, point *currentPoint)
 
 short	***allocateMatrix()
 {
-	int	zaxis = currentSettings->zMinMax[1] / currentSettings->layerHeight;
-	int	yaxis = currentSettings->yMinMax[1] / rateo;
-	int	xaxis = currentSettings->xMinMax[1] / rateo;
+	int	zaxis = currentSettings->zMinMax[1] / currentSettings->layerHeight ;
+	int	yaxis = currentSettings->yMinMax[1] / rateo ;
+	int	xaxis = currentSettings->xMinMax[1] / rateo ;
 
 	short ***matrix = malloc(sizeof(short **) * (zaxis + 1));
 	for(int j = 0; j <= zaxis; j++)
@@ -226,6 +226,7 @@ int		clampValue(int value, int axis)
 
 void	lin_int_addPointToMatrix(point *current, point *old, short ***matrix)
 {
+	int shades = 8;
 	point *temp = malloc(sizeof(point));
 	pointcpy(temp, old);
 	int	maxZ = currentSettings->zMinMax[1] / currentSettings->layerHeight;
@@ -303,6 +304,7 @@ void	printLayer(short ***matrix , int layer)
 		{
 			for(int l = 0; l <= (currentSettings->xMinMax[1] / rateo) - 1; l++)
 				if (matrix[layer][k][l])
+					//printf("%d ", matrix[layer][k][l] );
 					printf("%s ", getShadeByPoint(matrix[layer][k][l]));
 				else
 					printf("  ");
@@ -363,34 +365,34 @@ void freeMatrix(short ***matrix)
 
 //axis:
 //	x:	2	|	y:	1	|	z:	0
-int	outputcl(short ***matrix, int argc, char *argv[], FILE *file , int axis, float angle)
-{
-	freeMatrix(matrix);
-	if (validateInput(argc, argv, &file))
-		return (1);
-	if (file != 0)
-		matrix = readAllLines(matrix, &file);
-	else
-	{
-		printf("Error reading file.");
-		return (1);
-	}
-	matrix = matRotation(matrix, 0, degtorad(angle));
-	matrix = matRotation(matrix, 1, degtorad(angle));
+// int	outputcl(short ***matrix, int argc, char *argv[], FILE *file , int axis, float angle)
+// {
+// 	//freeMatrix(matrix);
 
-	for(int l = 1; l < currentSettings->zMinMax[1] / currentSettings->layerHeight; l++)
-		matrix[0] = mergeLayers(matrix[0], matrix[l]);
-	system(CLEAR);
-	printLayer(matrix , 0);
-	freeMatrix(matrix);
-	return (0);
-}
+// 	if (validateInput(argc, argv, &file))
+// 		return (1);
+// 	if (file != 0)
+// 		matrix = readAllLines(matrix, &file);
+// 	else
+// 	{
+// 		printf("Error reading file.");
+// 		return (1);
+// 	}
+// 	//matrix = matRotation(matrix, 0, degtorad(angle));
+// 	matrix = matRotation(matrix, 1, degtorad(angle));
+
+// 	for(int l = 1; l < currentSettings->zMinMax[1] / currentSettings->layerHeight; l++)
+// 		matrix[0] = mergeLayers(matrix[0], matrix[l]);
+// 	system(CLEAR);
+// 	printLayer(matrix , 0);
+// 	freeMatrix(matrix);
+// 	return (0);
+// }
 
 int	output(short ***matrix, int argc, char *argv[], FILE *file , int axis, float angle)
 {
-	matrix = matRotation(matrix, 0, degtorad(angle));
 	matrix = matRotation(matrix, 1, degtorad(angle));
-
+	//matrix = matRotation(matrix, 2, degtorad(angle));
 	for(int l = 1; l < currentSettings->zMinMax[1] / currentSettings->layerHeight; l++)
 		matrix[0] = mergeLayers(matrix[0], matrix[l]);
 	system(CLEAR);

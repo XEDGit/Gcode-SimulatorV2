@@ -76,6 +76,14 @@ double	*matMul(double **projection, int size, double *pt)
 
 //axis:
 //	x:	2	|	y:	1	|	z:	0
+int magnitute(int x, int y, int z )
+{
+	return(sqrt(pow(x,2) + pow(y,2) + pow(z,2)));
+}
+int findAngle()
+{
+	
+}
 short	***matRotation(short ***matrix, int	axis, float angle)
 {
 	if(angle == 0)
@@ -108,7 +116,9 @@ short	***matRotation(short ***matrix, int	axis, float angle)
 				pos = findPointInMatrix(multiplied);
 				// if (j == 1)
 				// 	printf("final		|	x: %d, y: %d, z: %d\n", pos->x, pos->y, pos->z);
-				result[clampValue(pos->z, 2)][clampValue(pos->y, 1)][clampValue(pos->x, 0)] = matrix[j][k][i];
+				//atan2(p1.y - p2.y, p1.x - p2.x)
+				//result[clampValue(pos->z, 2)][clampValue(pos->y, 1)][clampValue(pos->x, 0)] = (int) sqrt(pow(pos->x - currentSettings->xMinMax[1]/2 ,2) + pow(pos->y -currentSettings->yMinMax[1]/2 ,2) + pow(pos->z - currentSettings->zMinMax[1] ,2));
+				result[clampValue(pos->z, 2)][clampValue(pos->y, 1)][clampValue(pos->x, 0)] = (int) (atan2((pos->y - currentSettings->zMinMax[1]/2), (pos->x - currentSettings->xMinMax[1]/2)) * 10);
 				free(pos);
 				free(origin);
 				free(multiplied);

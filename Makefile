@@ -14,4 +14,4 @@ dr:
 	gcc matrixManager.c readGcode.c helperFunctions.c -lm -fsanitize=address -g && ./a.out
 
 drs:
-	gcc matrixManager.c readGcode.c helperFunctions.c -lm -fsanitize=address -g && ./a.out 5
+	gcc matrixManager.c readGcode.c helperFunctions.c -lm -fsanitize=address -g && ./a.out 2
