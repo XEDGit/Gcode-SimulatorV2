@@ -2,6 +2,7 @@
 #include "projections.h"
 
 int firstRotation = 1;
+point	*lightSource;
 
 int nullProj[3][3] = {
 	{1, 0, 0},
@@ -41,8 +42,8 @@ double	*distToCenter(int x, int y, int z)
 	double	xaxis = ((currentSettings->xMinMax[1] / rateo) - 1) / 2;
 	double	*p = malloc(sizeof(double) * 3);
 	p[0] = x - xaxis;
-	p[1] = y - yaxis;
-	p[2] = z - zaxis;
+	p[2] = y - yaxis;
+	p[1] = z - zaxis;
 	return (p);
 }
 
@@ -53,8 +54,8 @@ point	*findPointInMatrix(double *pt)
 	double	xaxis = ((currentSettings->xMinMax[1] / rateo) - 1) / 2;
 	point	*p = malloc(sizeof(point));
 	p->x = (int) pt[0] + xaxis;
-	p->y = (int) pt[1] + yaxis;
-	p->z = (int) pt[2] + zaxis;
+	p->y = (int) pt[2] + yaxis;
+	p->z = (int) pt[1] + zaxis;
 	p->mode = 0;
 	return (p);
 }
@@ -76,14 +77,41 @@ double	*matMul(double **projection, int size, double *pt)
 
 //axis:
 //	x:	2	|	y:	1	|	z:	0
-int magnitute(int x, int y, int z )
+
+int magnitute(int *vector )
 {
-	return(sqrt(pow(x,2) + pow(y,2) + pow(z,2)));
+	return(sqrt(pow(vector[0],2) + pow(vector[1],2) + pow(vector[2],2)));
 }
-int findAngle()
+
+int *getVectorBetweenAB(point *a, point *b)
 {
-	
+	int *vector = malloc(sizeof(int) * 3);
+	vector[0] = a->x - b->x;
+	vector[1] = a->y - b->y;
+	vector[2] = a->z - b->z;
+	return(vector);
 }
+int vectorProduct(int *a, int *b)
+{
+	return(a[0]*b[0] + a[1]*b[1] + a[2]*b[2]);
+}
+
+int dotProduct(point *a, point *b)
+{
+	int result;
+	int *vectorFromLight = getVectorBetweenAB(a, b);
+	point *normalized = malloc(sizeof(point));
+	normalized->x = b->x;
+	normalized->y = b->y;
+	normalized->z = b->z - 1;
+	int *normalizedVectorFromPoint = getVectorBetweenAB(b, normalized);
+	//printf("vectorproduct: %d magproduct: %d div: %f \n", vectorProduct(vectorFromLight , normalizedVectorFromPoint), (magnitute(vectorFromLight) * magnitute(normalizedVectorFromPoint)), acos((double) (vectorProduct(vectorFromLight , normalizedVectorFromPoint) / (double) (magnitute(vectorFromLight) * magnitute(normalizedVectorFromPoint)))) * 180/M_PI);
+	result = acos((double) (vectorProduct(vectorFromLight , normalizedVectorFromPoint) / (double) (magnitute(vectorFromLight) * magnitute(normalizedVectorFromPoint))))* 180/M_PI;
+	free(normalized);
+	free(vectorFromLight);
+	return(result);
+}
+
 short	***matRotation(short ***matrix, int	axis, float angle)
 {
 	if(angle == 0)
@@ -93,11 +121,17 @@ short	***matRotation(short ***matrix, int	axis, float angle)
 	double	*multiplied;
 	double	**projection;
 	point	*pos;
+
+	if(!lightSource)
+		lightSource = malloc(sizeof(point));
 	int		zaxis = currentSettings->zMinMax[1] / currentSettings->layerHeight;
 	int		yaxis = currentSettings->yMinMax[1] / rateo;
 	int		xaxis = currentSettings->xMinMax[1] / rateo;
 	short	***result = allocateMatrix();
 
+	lightSource->x = 0;
+	lightSource->y = 0;
+	lightSource->z = zaxis;
 	for(int j = 0; j < zaxis; j++)
 	{
 		for(int k = 0; k < yaxis; k++)
@@ -117,8 +151,8 @@ short	***matRotation(short ***matrix, int	axis, float angle)
 				// if (j == 1)
 				// 	printf("final		|	x: %d, y: %d, z: %d\n", pos->x, pos->y, pos->z);
 				//atan2(p1.y - p2.y, p1.x - p2.x)
-				result[clampValue(pos->z, 2)][clampValue(pos->y, 1)][clampValue(pos->x, 0)] = (int) sqrt(pow(pos->x - currentSettings->xMinMax[1]/2 ,2) + pow(pos->y -currentSettings->yMinMax[1]/2 ,2) + pow(pos->z - currentSettings->zMinMax[1]/2 ,2));
-				//result[clampValue(pos->z, 2)][clampValue(pos->y, 1)][clampValue(pos->x, 0)] = (int) (atan2((pos->y - currentSettings->zMinMax[1]/2), (pos->x - currentSettings->xMinMax[1]/2)) * 10);
+				//result[clampValue(pos->z, 2)][clampValue(pos->y, 1)][clampValue(pos->x, 0)] = (int) sqrt(pow(pos->x - lightSource->x ,2) + pow(pos->y - lightSource->y ,2) + pow(pos->z - lightSource->z ,2));
+				result[clampValue(pos->z, 2)][clampValue(pos->y, 1)][clampValue(pos->x, 0)] = dotProduct(lightSource, pos);
 				free(pos);
 				free(origin);
 				free(multiplied);
