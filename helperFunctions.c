@@ -100,21 +100,52 @@ short	**mergeLayers(short **l1, short **l2)
 char * getShadeByPoint(int shade)
 {
 	shade = (shade - 60) / 8;
+	//system("tput setaf 214");
 	switch(shade + 1) 
 	{
-	case 1: return("X"); break;
-	case 2: return("@"); break;
-	case 3: return("&"); break;
-	case 4: return("#"); break;
-	case 5: return("+"); break;
-	case 6: return("="); break;
-	case 7: return(":"); break;
-	case 8: return("'"); break;
+	case 1: return("\x1b[38;5;232m\u2586");  break;
+	case 2: return("\x1b[38;5;233m\u2586"); break;
+	case 3: return("\x1b[38;5;234m\u2586"); break;
+	case 4: return("\x1b[38;5;235m\u2586"); break;
+	case 5: return("\x1b[38;5;236m\u2586"); break;
+	case 6: return("\x1b[38;5;237m\u2586"); break;
+	case 7: return("\x1b[38;5;238m\u2586"); break;
+	case 8: return("\x1b[38;5;239m\u2586"); break;
+	case 9: return("\x1b[38;5;240m\u2586");  break;
+	case 10: return("\x1b[38;5;241m\u2586"); break;
+	case 11: return("\x1b[38;5;242m\u2586"); break;
+	case 12: return("\x1b[38;5;243m\u2586"); break;
+	case 13: return("\x1b[38;5;244m\u2586"); break;
+	case 14: return("\x1b[38;5;245m\u2586"); break;
+	case 15: return("\x1b[38;5;246m\u2586"); break;
+	case 16: return("\x1b[38;5;247m\u2586"); break;
 	default: 
-	return(".");
+		return("\x1b[38;5;248m\u2586");
 	 break;
+	 return(0);
 	}
-}
+ }
+
+//  char * getShadeByPoint(int shade)
+// {
+// 	shade = (shade - 60) / 8;
+// 	//system("tput setaf 214");
+// 	switch(shade + 1) 
+// 	{
+// 	case 8: return("\x1b[38;5;232m\u2586");  break;
+// 	case 7: return("\x1b[38;5;234m\u2586"); break;
+// 	case 6: return("\x1b[38;5;236m\u2586"); break;
+// 	case 5: return("\x1b[38;5;238m\u2586"); break;
+// 	case 4: return("\x1b[38;5;240m\u2586");  break;
+// 	case 3: return("\x1b[38;5;242m\u2586"); break;
+// 	case 2: return("\x1b[38;5;244m\u2586"); break;
+// 	case 1: return("\x1b[38;5;246m\u2586"); break;
+// 	default: 
+// 		return("\x1b[38;5;248m\u2586");
+// 	 break;
+// 	 return(0);
+// 	}
+//  }
 
 
 // char * getShadeByPoint(int shade)
