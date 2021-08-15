@@ -129,9 +129,9 @@ short	***matRotation(short ***matrix, int	axis, float angle)
 	int		xaxis = currentSettings->xMinMax[1] / rateo;
 	short	***result = allocateMatrix();
 
-	lightSource->x = 0;
-	lightSource->y = 0;
-	lightSource->z = zaxis;
+	lightSource->x = xaxis / 2;
+	lightSource->y = yaxis / 2;
+	lightSource->z = zaxis / 2;
 	for(int j = 0; j < zaxis; j++)
 	{
 		for(int k = 0; k < yaxis; k++)

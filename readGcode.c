@@ -226,7 +226,7 @@ int		clampValue(int value, int axis)
 
 void	lin_int_addPointToMatrix(point *current, point *old, short ***matrix)
 {
-	int shades = 16;
+	int shades = 8;
 	point *temp = malloc(sizeof(point));
 	pointcpy(temp, old);
 	int	maxZ = currentSettings->zMinMax[1] / currentSettings->layerHeight;
@@ -304,8 +304,8 @@ void	printLayer(short ***matrix , int layer)
 		{
 			for(int l = 0; l <= (currentSettings->xMinMax[1] / rateo) - 1; l++)
 				if (matrix[layer][k][l])
-					printf("%c ", matrix[layer][k][l]  );
-					//printf("%s ", getShadeByPoint(matrix[layer][k][l]));
+					//printf("%d ", matrix[layer][k][l]  );
+					printf("%s ", getShadeByPoint(matrix[layer][k][l]));
 				else
 					printf("  ");
 			printf("\n");

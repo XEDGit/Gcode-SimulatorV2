@@ -80,17 +80,17 @@ short	**mergeLayers(short **l1, short **l2)
 
 // char * getShadeByPoint(int shade)
 // {
-// 	shade = shade / 16;
+// 	shade = (shade - 50) / 8;
 // 	switch(shade + 1) 
 // 	{
-// 	case 1: return("\u2598"); break;
-// 	case 2: return("\u2587"); break;
-// 	case 3: return("\u2586"); break;
-// 	case 4: return("\u2585"); break;
-// 	case 5: return("\u2584"); break;
-// 	case 6: return("\u2583"); break;
-// 	case 7: return("\u2582"); break;
-// 	case 8: return("\u2581"); break;
+// 	case 8: return("\u2598"); break;
+// 	case 7: return("\u2587"); break;
+// 	case 6: return("\u2586"); break;
+// 	case 5: return("\u2585"); break;
+// 	case 4: return("\u2584"); break;
+// 	case 3: return("\u2583"); break;
+// 	case 2: return("\u2582"); break;
+// 	case 1: return("\u2581"); break;
 // 	default: 
 // 	return(".");
 // 	 break;
@@ -99,27 +99,47 @@ short	**mergeLayers(short **l1, short **l2)
 
 char * getShadeByPoint(int shade)
 {
-	shade /= 16;
+	shade = (shade - 60) / 8;
 	switch(shade + 1) 
 	{
-	case 1: return("\u2588");  break;
-	case 2: return("\u2597"); break;
-	case 3: return("\u2589"); break;
-	case 4: return("\u258A"); break;
-	case 5: return("\u2586"); break;
-	case 6: return("\u258B"); break;
-	case 7: return("\u2585"); break;
-	case 8:  return("\u258C"); break;
-	case 9:	 return("\u2584");  break;
-	case 10:  return("\u258D"); break;
-	case 11:  return("\u2583"); break;
-	case 12:  return("\u258E"); break;
-	case 13:  return("\u2582"); break;
-	case 14:  return("\u258F"); break;
-	case 15:  return("\u2581"); break;
-	case 16:  return("\u258F"); break;
+	case 1: return("X"); break;
+	case 2: return("@"); break;
+	case 3: return("&"); break;
+	case 4: return("#"); break;
+	case 5: return("+"); break;
+	case 6: return("="); break;
+	case 7: return(":"); break;
+	case 8: return("'"); break;
 	default: 
-	return("\u2581");
+	return(".");
 	 break;
 	}
 }
+
+
+// char * getShadeByPoint(int shade)
+// {
+// 	shade = (shade - 50) / 8;
+// 	switch(shade + 1) 
+// 	{
+// 	case 1: return("\u2588");  break;
+// 	case 2: return("\u2597"); break;
+// 	case 3: return("\u2589"); break;
+// 	case 4: return("\u258A"); break;
+// 	case 5: return("\u2586"); break;
+// 	case 6: return("\u258B"); break;
+// 	case 7: return("\u2585"); break;
+// 	case 8:  return("\u258C"); break;
+// 	case 9:	 return("\u2584");  break;
+// 	case 10:  return("\u258D"); break;
+// 	case 11:  return("\u2583"); break;
+// 	case 12:  return("\u258E"); break;
+// 	case 13:  return("\u2582"); break;
+// 	case 14:  return("\u258F"); break;
+// 	case 15:  return("\u2581"); break;
+// 	case 16:  return("\u258F"); break;
+// 	default: 
+// 	return("\u2589");
+// 	 break;
+// 	}
+// }
