@@ -301,7 +301,7 @@ void	printLayer(short ***matrix , int layer)
 {
 		int lastColor = 0;
 		system(CLEAR);
-		for(int k = currentSettings->yMinMax[1] / rateo /2; k <= (currentSettings->yMinMax[1] / rateo) - 1; k++)
+		for(int k = 0; k <= (currentSettings->yMinMax[1] / rateo) - 1; k++)
 		{
 			for(int l = 0; l <= (currentSettings->xMinMax[1] / rateo) - 1; l++)
 				if (matrix[layer][k][l])
@@ -376,7 +376,7 @@ void freeMatrix(short ***matrix)
 int	output(short ***matrix, int argc, char *argv[], FILE *file , int axis, float angle)
 {
 	matrix = matRotation(matrix, 0, degtorad(angle));
-	//matrix = matRotation(matrix, 2, degtorad(angle));
+	matrix = matRotation(matrix, 2, degtorad(angle));
 	for(int l = 1; l < currentSettings->zMinMax[1] / currentSettings->layerHeight; l++)
 		matrix[0] = mergeLayers(matrix[0], matrix[l]);
 	printLayer(matrix , 0);
@@ -409,16 +409,16 @@ int main(int argc, char *argv[])
 	return (0);
 }
 
+
 //Comment Section
 
-// //
+
 
 //axis:
 //	x:	2	|	y:	1	|	z:	0
 // int	outputcl(short ***matrix, int argc, char *argv[], FILE *file , int axis, float angle)
 // {
 // 	//freeMatrix(matrix);
-
 // 	if (validateInput(argc, argv, &file))
 // 		return (1);
 // 	if (file != 0)
@@ -430,7 +430,6 @@ int main(int argc, char *argv[])
 // 	}
 // 	//matrix = matRotation(matrix, 0, degtorad(angle));
 // 	matrix = matRotation(matrix, 1, degtorad(angle));
-
 // 	for(int l = 1; l < currentSettings->zMinMax[1] / currentSettings->layerHeight; l++)
 // 		matrix[0] = mergeLayers(matrix[0], matrix[l]);
 // 	system(CLEAR);
@@ -438,6 +437,8 @@ int main(int argc, char *argv[])
 // 	freeMatrix(matrix);
 // 	return (0);
 // }
+
+
 
 //        |  \ \ | |/ /
 //           |  |\ `' ' /
@@ -469,19 +470,28 @@ int main(int argc, char *argv[])
 		// 			matrix[0] = mergeLayers(matrix[0], matrix[l], currentSettings, rateo);
 		/////////////
 
+
+
 //printf("x: %d  y: %d z: %d char: %c \n ", currentPoint->x,currentPoint->y,currentPoint->z, matrix[currentPoint->z][currentPoint->y][currentPoint->x]);
+
+
 
 //else if (index == 2)
 			//{
 				//printf("\nlh: %f\txmin: %d\txmax: %d\tymax: %d\tymax: %d\tzmin: %d\tzmax: %d\t"->layerHeight, currentSettings->xMinMax[0], currentSettings->xMinMax[1], currentSettings->yMinMax[0], currentSettings->yMinMax[1], currentSettings->zMinMax[0], currentSettings->zMinMax[1]);
 			//}
 
+
+
 // else
 				// 	matrix[currentPoint->z][clampValue(currentPoint->y, 1)][clampValue(currentPoint->x, 0)] = 'x';			
+
+
 
 //for debugging purposes only
 		// *file = fopen(argv[2], "r");
 		// rateo = atoi(argv[1]);
+
 
 
 // int	strlenght(char *str)
@@ -491,6 +501,8 @@ int main(int argc, char *argv[])
 // 		i++;
 // 	return (i);
 // }
+
+
 
 // char	*stringjoin(char *s1, char *s2)
 // {
@@ -511,4 +523,90 @@ int main(int argc, char *argv[])
 
 
 
-//love when you focus too much on something and do all the smaller nonsense details <3		
+//love when you focus too much on something and do all the smaller nonsense details <3
+
+
+
+// int getdissedbyrafcamora(char *who)
+// {
+// kill(who);
+// }
+// int main()
+// {
+// 	getdissedbyrafcamora("tom");
+// 	return (0);
+// }
+
+
+
+// shade backups
+//
+// char * getShadeByPoint(int shade)
+// {
+// 	shade = (shade - 50) / 8;
+// 	switch(shade + 1) 
+// 	{
+// 	case 8: return("\u2598"); break;
+// 	case 7: return("\u2587"); break;
+// 	case 6: return("\u2586"); break;
+// 	case 5: return("\u2585"); break;
+// 	case 4: return("\u2584"); break;
+// 	case 3: return("\u2583"); break;
+// 	case 2: return("\u2582"); break;
+// 	case 1: return("\u2581"); break;
+// 	default: 
+// 	return(".");
+// 	 break;
+// 	}
+// }
+
+
+
+//  char * getShadeByPoint(int shade)
+// {
+// 	shade = (shade - 60) / 8;
+// 	//system("tput setaf 214");
+// 	switch(shade + 1) 
+// 	{
+// 	case 8: return("\x1b[38;5;232m\u2586");  break;
+// 	case 7: return("\x1b[38;5;234m\u2586"); break;
+// 	case 6: return("\x1b[38;5;236m\u2586"); break;
+// 	case 5: return("\x1b[38;5;238m\u2586"); break;
+// 	case 4: return("\x1b[38;5;240m\u2586");  break;
+// 	case 3: return("\x1b[38;5;242m\u2586"); break;
+// 	case 2: return("\x1b[38;5;244m\u2586"); break;
+// 	case 1: return("\x1b[38;5;246m\u2586"); break;
+// 	default: 
+// 		return("\x1b[38;5;248m\u2586");
+// 	 break;
+// 	 return(0);
+// 	}
+//  }
+
+
+// char * getShadeByPoint(int shade)
+// {
+// 	shade = (shade - 50) / 8;
+// 	switch(shade + 1) 
+// 	{
+// 	case 1: return("\u2588");  break;
+// 	case 2: return("\u2597"); break;
+// 	case 3: return("\u2589"); break;
+// 	case 4: return("\u258A"); break;
+// 	case 5: return("\u2586"); break;
+// 	case 6: return("\u258B"); break;
+// 	case 7: return("\u2585"); break;
+// 	case 8:  return("\u258C"); break;
+// 	case 9:	 return("\u2584");  break;
+// 	case 10:  return("\u258D"); break;
+// 	case 11:  return("\u2583"); break;
+// 	case 12:  return("\u258E"); break;
+// 	case 13:  return("\u2582"); break;
+// 	case 14:  return("\u258F"); break;
+// 	case 15:  return("\u2581"); break;
+// 	case 16:  return("\u258F"); break;
+// 	default: 
+// 	return("\u2589");
+// 	 break;
+// 	}
+// }

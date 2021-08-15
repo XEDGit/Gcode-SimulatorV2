@@ -4,10 +4,10 @@ compile:
 scale:
 	gcc matrixManager.c readGcode.c helperFunctions.c -lm && ./a.out 5
 
-run:
+r:
 	gcc matrixManager.c readGcode.c helperFunctions.c -lm && ./a.out
 
-debug:
+d:
 	gcc matrixManager.c readGcode.c helperFunctions.c -lm -fsanitize=address -g
 
 dr:
