@@ -301,7 +301,7 @@ void	printLayer(short ***matrix , int layer)
 {
 		int lastColor = 0;
 		system(CLEAR);
-		for(int k = 0; k <= (currentSettings->yMinMax[1] / rateo) - 1; k++)
+		for(int k = 0 / rateo /2; k <= (currentSettings->yMinMax[1] / rateo) - 1; k++)
 		{
 			for(int l = 0; l <= (currentSettings->xMinMax[1] / rateo) - 1; l++)
 				if (matrix[layer][k][l])

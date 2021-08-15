@@ -93,17 +93,35 @@ int vectorProduct(int *a, int *b)
 	return(a[0]*b[0] + a[1]*b[1] + a[2]*b[2]);
 }
 
+int *crossProduct(int *a, int *b)
+{
+	int *result = malloc(3);
+	result[0] = a[1] * b[2] - a[2] * b[1];
+	result[1] = a[2] * b[0] - a[0] * b[2];
+	result[2] = a[0] * b[1] - a[1] * b[0];
+	return(result);
+
+}
+point *pointsAround(point *b)
+{
+	point result = malloc(sizeof(point) * 2);
+}
+
 int dotProduct(point *a, point *b)
 {
 	int result;
 	int *vectorFromLight = getVectorBetweenAB(a, b);
+	int *normalizedVectorFromPoint;
 	point *normalized = malloc(sizeof(point));
 	normalized->x = b->x;
 	normalized->y = b->y;
 	normalized->z = b->z - 1;
-	int *normalizedVectorFromPoint = getVectorBetweenAB(b, normalized);
+
+
+	normalizedVectorFromPoint = crossProduct(b, normalized);
 	//printf("vectorproduct: %d magproduct: %d div: %f \n", vectorProduct(vectorFromLight , normalizedVectorFromPoint), (magnitute(vectorFromLight) * magnitute(normalizedVectorFromPoint)), acos((double) (vectorProduct(vectorFromLight , normalizedVectorFromPoint) / (double) (magnitute(vectorFromLight) * magnitute(normalizedVectorFromPoint)))) * 180/M_PI);
 	result = acos((double) (vectorProduct(vectorFromLight , normalizedVectorFromPoint) / (double) (magnitute(vectorFromLight) * magnitute(normalizedVectorFromPoint))))* 180/M_PI;
+
 	free(normalized);
 	free(vectorFromLight);
 	return(result);
