@@ -104,7 +104,7 @@ int *crossProduct(int *a, int *b)
 }
 point *pointsAround(point *b)
 {
-	point result = malloc(sizeof(point) * 2);
+	point *result = malloc(sizeof(point) * 2);
 }
 
 int dotProduct(point *a, point *b)
