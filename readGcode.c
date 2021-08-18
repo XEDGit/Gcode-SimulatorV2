@@ -376,7 +376,7 @@ void freeMatrix(short ***matrix)
 int	output(short ***matrix, int argc, char *argv[], FILE *file , int axis, float angle)
 {
 	matrix = matRotation(matrix, 0, degtorad(angle));
-	matrix = matRotation(matrix, 2, degtorad(angle));
+	matrix = matRotation(matrix, 1, degtorad(angle));
 	for(int l = 1; l < currentSettings->zMinMax[1] / currentSettings->layerHeight; l++)
 		matrix[0] = mergeLayers(matrix[0], matrix[l]);
 	printLayer(matrix , 0);

@@ -16,25 +16,6 @@ double	degtorad(int deg)
 	return (rad);
 }
 
-double *pointToArray(point *pt)
-{
-	double	*p = malloc(sizeof(double) * 3);
-	p[0] = pt->x;
-	p[1] = pt->y;
-	p[2] = pt->z;
-	return (p);
-}
-
-point	*arrayToPoint(double *pt)
-{
-	point	*p = malloc(sizeof(point));
-	p->x = pt[0];
-	p->z = pt[1];
-	p->y = pt[2];
-	p->mode = 0;
-	return (p);
-}
-
 double	*distToCenter(int x, int y, int z)
 {
 	double	zaxis = (currentSettings->zMinMax[1] / currentSettings->layerHeight) / 2;
@@ -93,15 +74,15 @@ int vectorProduct(int *a, int *b)
 	return(a[0]*b[0] + a[1]*b[1] + a[2]*b[2]);
 }
 
-int *crossProduct(int *a, int *b)
+int *crossProduct(point *a, point *b)
 {
 	int *result = malloc(3);
-	result[0] = a[1] * b[2] - a[2] * b[1];
-	result[1] = a[2] * b[0] - a[0] * b[2];
-	result[2] = a[0] * b[1] - a[1] * b[0];
+	result[0] = a->y * b->z - a->z * b->y;
+	result[1] = a->z * b->x - a->x * b->z;
+	result[2] = a->x * b->y - a->y * b->x;
 	return(result);
-
 }
+
 point *pointsAround(point *b)
 {
 	point *result = malloc(sizeof(point) * 2);
