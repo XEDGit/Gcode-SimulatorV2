@@ -15,3 +15,6 @@ dr:
 
 drs:
 	gcc matrixManager.c readGcode.c helperFunctions.c -lm -fsanitize=address -g && ./a.out 2
+
+a:
+	gcc matrixManager.c readGcode.c helperFunctions.c -lm -o android.out

@@ -44,7 +44,7 @@ void	putAxisIntoStruct(char axis, point *currentPoint, char *line)
 		currentPoint->y = roundFloat(atof(command));
 	else if (axis == 'Z')
 	{
-		while(*line != ' ' && *line != '\n')
+		while(*line != ' ' && *line != '\n' && i < 99)
 			command[i++] = *line++;
 		command[i] = 0;
 		//<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3
@@ -322,7 +322,77 @@ void	printLayer(short ***matrix , int layer)
 		}
 }
 
-short ***readAllLines(short ***matrix, FILE **file)
+int	parseSettings(int argc, char *argv[])
+{
+	char *line = malloc(256);
+	int readSettings = 1;
+	int minX = 0, maxX = 0, minY = 0, maxY = 0, minZ = 0, maxZ = 0;
+	FILE *file;
+	int c = 0;
+
+	validateInput(argc, argv, &file);
+	while (fgets(line, 255, file))
+	{
+		if (line[0] == 'G' && (line[1] == '0' || line[1] == '1'))
+		{
+			int i = 0;
+			char	*command = malloc(100);
+			if (advancePtoChar(line, 'X') != 0)
+			{
+				line = advancePtoChar(line, 'X');
+				while (*line != ' ' && *line != '\n' && *line != 0)
+					command[i++] = *line++;
+				command[i] = 0;
+				if (roundFloat(atof(command)) > maxX)
+					maxX = roundFloat(atof(command));
+				else if (roundFloat(atof(command)) < minX)
+					minX = roundFloat(atof(command));
+				i = 0;
+			}
+			if (advancePtoChar(line, 'Y') != 0)
+			{
+				line = advancePtoChar(line, 'Y');
+				while (*line != ' ' && *line != '\n' && *line != 0)
+					command[i++] = *line++;
+				command[i] = 0;
+				if (roundFloat(atof(command)) > maxY)
+					maxY = roundFloat(atof(command));
+				else if (roundFloat(atof(command)) < minY)
+					minY = roundFloat(atof(command));
+				i = 0;
+			}
+			if (advancePtoChar(line, 'Z') != 0)
+			{
+				line = advancePtoChar(line, 'Z');
+				while (*line != ' ' && *line != '\n' && *line != 0)
+					command[i++] = *line++;
+				command[i] = 0;
+				if (roundFloat(atof(command)) > maxZ)
+					maxZ = roundFloat(atof(command));
+				else if (roundFloat(atof(command)) < minZ)
+					minZ = roundFloat(atof(command));
+				i = 0;
+			}
+			free(command);
+		}
+	}
+	if (maxX != 0 && maxY != 0 && maxZ != 0)
+	{
+		currentSettings->xMinMax[0] = minX;
+		currentSettings->xMinMax[1] = maxX;
+		currentSettings->yMinMax[0] = minY;
+		currentSettings->yMinMax[1] = maxY;
+		currentSettings->zMinMax[0] = minZ;
+		currentSettings->zMinMax[1] = maxZ;
+		currentSettings->layerHeight = 1;
+	}
+	else
+		return (5);
+	
+	return (0);
+}
+
+short ***readAllLines(short ***matrix, FILE **file, int argc, char *argv[])
 {
 	char line[256];
 	int readSettings = 1;
@@ -330,7 +400,7 @@ short ***readAllLines(short ***matrix, FILE **file)
 	point *currentPoint = malloc(sizeof(point));
 
 	setZero(currentPoint);
-	while (fgets(line, sizeof(line), *file))
+	while (fgets(line, 1000, *file))
 	{
 		if (!readSettings)
 		{
@@ -339,6 +409,9 @@ short ***readAllLines(short ***matrix, FILE **file)
 			if(matrix != 0)
 				printf("3D model allocated.\n");
 			readSettings = 2;
+			printf("settings:\n	xmin: %d	xmax: %d\n	ymin: %d	ymax: %d\n	zmin: %d	zmax: %d\n", currentSettings->xMinMax[0], currentSettings->xMinMax[1], currentSettings->yMinMax[0], currentSettings->yMinMax[1], currentSettings->zMinMax[0], currentSettings->zMinMax[1]);
+			currentSettings->layerHeight = 1;
+			printf("mannaggia:	%f", currentSettings->layerHeight);
 		}
 		pointcpy(oldPoint, currentPoint);
 		int index = readValuesFromLine(line, currentPoint);
@@ -346,8 +419,21 @@ short ***readAllLines(short ***matrix, FILE **file)
 		{
 			if (readSettings == 1)
 			{
-				readSettings = 0;
+				if (currentSettings->xMinMax[1] != 0 && currentSettings->yMinMax[1] != 0 && currentSettings->zMinMax[1] != 0)
+					readSettings = 0;
+				else
+				{
+					printf("Error reading settings, starting recovery...\n");
+					readSettings = parseSettings(argc, argv);
+					if (!readSettings)
+						printf("Recovery successful\n");
+				}
 				continue;
+			}
+			else if (readSettings == 5)
+			{
+				printf("Recovery failed. Terminating\n");
+				exit(-1);
 			}
 			if (currentPoint->mode)
 				lin_int_addPointToMatrix(currentPoint, oldPoint, matrix);
@@ -392,7 +478,7 @@ int main(int argc, char *argv[])
 	if (validateInput(argc, argv, &file))
 		return (1);
 	if (file != 0)
-		matrix = readAllLines(matrix, &file);
+		matrix = readAllLines(matrix, &file, argc, argv);
 	else
 	{
 		printf("Error reading file.");

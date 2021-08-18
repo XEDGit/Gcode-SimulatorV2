@@ -2,10 +2,10 @@
 
 char *advancePtoChar(char *pointer, char c)
 {
-	while(*pointer != c && *pointer != 0)
+	while(*pointer != c && *pointer != '\n' && *pointer != 0)
 		pointer++;
 	//checking not found error
-	if (!*pointer)
+	if (!*pointer || *pointer == '\n')
 		return (0);
 	pointer++;
 	return(pointer);	

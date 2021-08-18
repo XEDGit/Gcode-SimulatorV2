@@ -45,7 +45,7 @@ int		validateInput(int argc, char *argv[], FILE **file);
 int		clampValue(int value, int axis);
 void	lin_int_addPointToMatrix(point *current, point *old, short ***matrix);
 void	printMatrix(short ***matrix);
-short	***readAllLines(short ***matrix, FILE **file);
+short ***readAllLines(short ***matrix, FILE **file, int argc, char *argv[]);
 void	freeMatrix(short ***matrix);
 char	*advancePtoChar(char *pointer, char c);
 int		isDigit(char c);
