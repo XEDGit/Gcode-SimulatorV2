@@ -48,7 +48,7 @@ void	putAxisIntoStruct(char axis, point *currentPoint, char *line)
 			command[i++] = *line++;
 		command[i] = 0;
 		//<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3
-		currentPoint->z = (int) ((atof(command) / currentSettings->layerHeight) + 1);
+		currentPoint->z = (int) ((atof(command) / currentSettings->layerHeight));
 	}
 	free(command);
 }
@@ -188,7 +188,7 @@ int		validateInput(int argc, char *argv[], FILE **file)
 		}
 		return (0);
 	}
-	*file = fopen("hello.gcode", "r");
+	*file = fopen(argv[2], "r");
 	return (0);
 }
 
@@ -229,7 +229,7 @@ void	lin_int_addPointToMatrix(point *current, point *old, short ***matrix)
 	int shades = 16;
 	point *temp = malloc(sizeof(point));
 	pointcpy(temp, old);
-	int	maxZ = currentSettings->zMinMax[1] / currentSettings->layerHeight;
+	int	maxZ = (currentSettings->zMinMax[1] / currentSettings->layerHeight);
 	//first point
 	matrix[clampValue(temp->z, 2)][clampValue(temp->y, 1)][clampValue(temp->x, 0)] = temp->z / (maxZ / 8);
 	//linear interpolation
@@ -322,26 +322,31 @@ void	printLayer(short ***matrix , int layer)
 		}
 }
 
-int	parseSettings(int argc, char *argv[])
+int	parseSettings(FILE **file)
 {
-	char *line = malloc(256);
-	int readSettings = 1;
-	int minX = 0, maxX = 0, minY = 0, maxY = 0, minZ = 0, maxZ = 0;
-	FILE *file;
-	int c = 0;
+	char	*command = malloc(100);
+	char 	line[1000];
+	char	*cursor;
+	int		readSettings = 1;
+	int		minX = 0, maxX = 0, minY = 0, maxY = 0, minZ = 0, maxZ = 0;
+	int		c = 0;
 
-	validateInput(argc, argv, &file);
-	while (fgets(line, 255, file))
+	rewind(*file);
+	while (fgets(&line[0], 300, *file))
 	{
+		cursor = &line[0];
 		if (line[0] == 'G' && (line[1] == '0' || line[1] == '1'))
 		{
 			int i = 0;
-			char	*command = malloc(100);
-			if (advancePtoChar(line, 'X') != 0)
+			if (advancePtoChar(cursor, 'X') != 0)
 			{
-				line = advancePtoChar(line, 'X');
-				while (*line != ' ' && *line != '\n' && *line != 0)
-					command[i++] = *line++;
+				cursor = advancePtoChar(cursor, 'X');
+				while (*cursor != ' ' && *cursor != '\n' && *cursor != 0)
+				{
+					command[i] = cursor[0];
+					cursor++;
+					i++;
+				}
 				command[i] = 0;
 				if (roundFloat(atof(command)) > maxX)
 					maxX = roundFloat(atof(command));
@@ -349,11 +354,15 @@ int	parseSettings(int argc, char *argv[])
 					minX = roundFloat(atof(command));
 				i = 0;
 			}
-			if (advancePtoChar(line, 'Y') != 0)
+			if (advancePtoChar(cursor, 'Y') != 0)
 			{
-				line = advancePtoChar(line, 'Y');
-				while (*line != ' ' && *line != '\n' && *line != 0)
-					command[i++] = *line++;
+				cursor = advancePtoChar(cursor, 'Y');
+				while (*cursor != ' ' && *cursor != '\n' && *cursor != 0)
+				{
+					command[i] = cursor[0];
+					cursor++;
+					i++;
+				}
 				command[i] = 0;
 				if (roundFloat(atof(command)) > maxY)
 					maxY = roundFloat(atof(command));
@@ -361,11 +370,11 @@ int	parseSettings(int argc, char *argv[])
 					minY = roundFloat(atof(command));
 				i = 0;
 			}
-			if (advancePtoChar(line, 'Z') != 0)
+			if (advancePtoChar(cursor, 'Z') != 0)
 			{
-				line = advancePtoChar(line, 'Z');
-				while (*line != ' ' && *line != '\n' && *line != 0)
-					command[i++] = *line++;
+				cursor = advancePtoChar(cursor, 'Z');
+				while (*cursor != ' ' && *cursor != '\n' && *cursor != 0)
+					command[i++] = *cursor++;
 				command[i] = 0;
 				if (roundFloat(atof(command)) > maxZ)
 					maxZ = roundFloat(atof(command));
@@ -373,9 +382,11 @@ int	parseSettings(int argc, char *argv[])
 					minZ = roundFloat(atof(command));
 				i = 0;
 			}
-			free(command);
 		}
+		c++;
 	}
+	free(command);
+	rewind(*file);
 	if (maxX != 0 && maxY != 0 && maxZ != 0)
 	{
 		currentSettings->xMinMax[0] = minX;
@@ -384,7 +395,7 @@ int	parseSettings(int argc, char *argv[])
 		currentSettings->yMinMax[1] = maxY;
 		currentSettings->zMinMax[0] = minZ;
 		currentSettings->zMinMax[1] = maxZ;
-		currentSettings->layerHeight = 1;
+		currentSettings->layerHeight = 0.2f;
 	}
 	else
 		return (5);
@@ -409,9 +420,9 @@ short ***readAllLines(short ***matrix, FILE **file, int argc, char *argv[])
 			if(matrix != 0)
 				printf("3D model allocated.\n");
 			readSettings = 2;
-			//printf("settings:\n	xmin: %d	xmax: %d\n	ymin: %d	ymax: %d\n	zmin: %d 	zmax: %d\n", currentSettings->xMinMax[0], currentSettings->xMinMax[1], currentSettings->yMinMax[0], currentSettings->yMinMax[1], currentSettings->zMinMax[0], currentSettings->zMinMax[1]);
-			currentSettings->layerHeight = 0.2f;
-			//printf("%f", currentSettings->layerHeight);
+			//currentSettings debugging
+			printf("settings:\n	xmin: %d	xmax: %d\n	ymin: %d	ymax: %d\n	zmin: %d 	zmax: %d\n", currentSettings->xMinMax[0], currentSettings->xMinMax[1], currentSettings->yMinMax[0], currentSettings->yMinMax[1], currentSettings->zMinMax[0], currentSettings->zMinMax[1]);
+			printf("%f", currentSettings->layerHeight);
 		}
 		pointcpy(oldPoint, currentPoint);
 		int index = readValuesFromLine(line, currentPoint);
@@ -424,7 +435,7 @@ short ***readAllLines(short ***matrix, FILE **file, int argc, char *argv[])
 				else
 				{
 					printf("Error reading settings, starting recovery...\n");
-					readSettings = parseSettings(argc, argv);
+					readSettings = parseSettings(file);
 					if (!readSettings)
 						printf("Recovery successful\n");
 				}
