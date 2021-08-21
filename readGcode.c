@@ -345,7 +345,7 @@ int	parseSettings(int argc, char *argv[])
 				command[i] = 0;
 				if (roundFloat(atof(command)) > maxX)
 					maxX = roundFloat(atof(command));
-				else if (roundFloat(atof(command)) < minX)
+				else if (roundFloat(atof(command)) < minX && atof(command) > 0)
 					minX = roundFloat(atof(command));
 				i = 0;
 			}
@@ -357,7 +357,7 @@ int	parseSettings(int argc, char *argv[])
 				command[i] = 0;
 				if (roundFloat(atof(command)) > maxY)
 					maxY = roundFloat(atof(command));
-				else if (roundFloat(atof(command)) < minY)
+				else if (roundFloat(atof(command)) < minY && atof(command) > 0)
 					minY = roundFloat(atof(command));
 				i = 0;
 			}
@@ -369,7 +369,7 @@ int	parseSettings(int argc, char *argv[])
 				command[i] = 0;
 				if (roundFloat(atof(command)) > maxZ)
 					maxZ = roundFloat(atof(command));
-				else if (roundFloat(atof(command)) < minZ)
+				else if (roundFloat(atof(command)) < minZ && atof(command) > 0)
 					minZ = roundFloat(atof(command));
 				i = 0;
 			}
@@ -409,9 +409,9 @@ short ***readAllLines(short ***matrix, FILE **file, int argc, char *argv[])
 			if(matrix != 0)
 				printf("3D model allocated.\n");
 			readSettings = 2;
-			printf("settings:\n	xmin: %d	xmax: %d\n	ymin: %d	ymax: %d\n	zmin: %d	zmax: %d\n", currentSettings->xMinMax[0], currentSettings->xMinMax[1], currentSettings->yMinMax[0], currentSettings->yMinMax[1], currentSettings->zMinMax[0], currentSettings->zMinMax[1]);
-			currentSettings->layerHeight = 1;
-			printf("mannaggia:	%f", currentSettings->layerHeight);
+			//printf("settings:\n	xmin: %d	xmax: %d\n	ymin: %d	ymax: %d\n	zmin: %d 	zmax: %d\n", currentSettings->xMinMax[0], currentSettings->xMinMax[1], currentSettings->yMinMax[0], currentSettings->yMinMax[1], currentSettings->zMinMax[0], currentSettings->zMinMax[1]);
+			currentSettings->layerHeight = 0.2f;
+			//printf("%f", currentSettings->layerHeight);
 		}
 		pointcpy(oldPoint, currentPoint);
 		int index = readValuesFromLine(line, currentPoint);
