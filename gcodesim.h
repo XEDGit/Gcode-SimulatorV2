@@ -28,6 +28,7 @@ typedef struct point {
 
 typedef struct settings {
 	float layerHeight;
+	int max;
 	int xMinMax[2];
 	int yMinMax[2];
 	int zMinMax[2];
@@ -69,4 +70,8 @@ char *getShadeByPoint(int layer);
 extern settings *currentSettings;
 extern int		rateo;
 
+#endif
+
+#ifndef M_PI
+#define M_PI 3.14159265359
 #endif

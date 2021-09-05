@@ -18,3 +18,6 @@ drs:
 
 a:
 	gcc matrixManager.c readGcode.c helperFunctions.c -lm -o android.out
+
+w:
+	gcc matrixManager.c readGcode.c helperFunctions.c

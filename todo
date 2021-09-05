@@ -1,0 +1,6 @@
+##############################################
+###########TO-DO GCODE SIMULATOR V2###########
+##############################################
+
+TODO	-	clampValue has problem of not deleting out of range chars
+TODO	-	find right center of the object in findPointInMatrix and DistToCenter, probably will need to define a threshold sto center the 3d model, now it's in a corner

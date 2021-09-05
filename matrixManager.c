@@ -18,25 +18,21 @@ double	degtorad(int deg)
 
 double	*distToCenter(int x, int y, int z)
 {
-	double	zaxis = (currentSettings->zMinMax[1] / currentSettings->layerHeight) / 2;
-	double	yaxis = ((currentSettings->yMinMax[1] / rateo)) / 2;
-	double	xaxis = ((currentSettings->xMinMax[1] / rateo)) / 2;
+	double max = currentSettings->max / 2;
 	double	*p = malloc(sizeof(double) * 3);
-	p[0] = x - xaxis;
-	p[2] = y - yaxis;
-	p[1] = z - zaxis;
+	p[0] = x - currentSettings->xMinMax[1] / 2;
+	p[1] = y - currentSettings->yMinMax[1] / 2;
+	p[2] = z - currentSettings->zMinMax[1] / currentSettings->layerHeight / 2;
 	return (p);
 }
 
 point	*findPointInMatrix(double *pt)
 {
-	double	zaxis = (currentSettings->zMinMax[1] / currentSettings->layerHeight) / 2;
-	double	yaxis = ((currentSettings->yMinMax[1] / rateo)) / 2;
-	double	xaxis = ((currentSettings->xMinMax[1] / rateo)) / 2;
+	double max = currentSettings->max / 2;
 	point	*p = malloc(sizeof(point));
-	p->x = (int) pt[0] + xaxis;
-	p->y = (int) pt[2] + yaxis;
-	p->z = (int) pt[1] + zaxis;
+	p->x = (int) pt[0] + max;
+	p->y = (int) pt[1] + max;
+	p->z = (int) pt[2] + max;
 	p->mode = 0;
 	return (p);
 }
@@ -122,19 +118,17 @@ short	***matRotation(short ***matrix, int	axis, float angle)
 
 	if(!lightSource)
 		lightSource = malloc(sizeof(point));
-	int		zaxis = currentSettings->zMinMax[1] / currentSettings->layerHeight;
-	int		yaxis = currentSettings->yMinMax[1] / rateo;
-	int		xaxis = currentSettings->xMinMax[1] / rateo;
+	int max = currentSettings->max;
 	short	***result = allocateMatrix();
 
 	lightSource->x = 100 ;
 	lightSource->y = 100;
-	lightSource->z = zaxis;
-	for(int j = 0; j < zaxis; j++)
+	lightSource->z = max;
+	for(int j = 0; j <= max; j++)
 	{
-		for(int k = 0; k < yaxis; k++)
+		for(int k = 0; k < max; k++)
 		{
-			for(int i = 0; i < xaxis; i++)
+			for(int i = 0; i < max; i++)
 			{
 				if (!matrix[j][k][i])
 					continue;
@@ -150,7 +144,8 @@ short	***matRotation(short ***matrix, int	axis, float angle)
 				// 	printf("final		|	x: %d, y: %d, z: %d\n", pos->x, pos->y, pos->z);
 				//atan2(p1.y - p2.y, p1.x - p2.x)
 				//result[clampValue(pos->z, 2)][clampValue(pos->y, 1)][clampValue(pos->x, 0)] = (int) sqrt(pow(pos->x - lightSource->x ,2) + pow(pos->y - lightSource->y ,2) + pow(pos->z - lightSource->z ,2));
-				result[clampValue(pos->z, 2)][clampValue(pos->y, 1)][clampValue(pos->x, 0)] = dotProduct(lightSource, pos);
+				//result[clampValue(pos->z, 2)][clampValue(pos->y, 1)][clampValue(pos->x, 0)] = dotProduct(lightSource, pos);
+				result[clampValue(pos->z, 2)][clampValue(pos->y, 1)][clampValue(pos->x, 0)] = 1;
 				free(pos);
 				free(origin);
 				free2DF(projection);
@@ -180,6 +175,7 @@ void	free2DF(double **p)
 	for (int i = 0; i < 3; i++)
 		free(p[i]);
 	free(p);
+	return;
 }
 
 //axis:

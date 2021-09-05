@@ -24,6 +24,7 @@ void	pointcpy(point *p1, point *p2)
 	p1->y = p2->y;
 	p1->z = p2->z;
 	p1->mode = p2->mode;
+	return;
 }
 
 int roundFloat(float value)
@@ -51,9 +52,9 @@ int	lin_int(int x1, int y1, int x2, int y2, int x)
 
 short	**mergeLayers(short **l1, short **l2)
 {
-	for (int i = 0; i < (currentSettings->yMinMax[1] / rateo) - 1; i++)
+	for (int i = 0; i < (currentSettings->max) - 1; i++)
 	{
-		for (int j = 0; j < (currentSettings->xMinMax[1] / rateo) - 1; j++)
+		for (int j = 0; j < (currentSettings->max) - 1; j++)
 		{
 			if (l2[i][j] != 0)
 				l1[i][j] = l2[i][j];
@@ -87,6 +88,6 @@ char * getShadeByPoint(int shade)
 	default: 
 		return("\x1b[38;5;248m\u2586");
 	 break;
-	 return(0);
 	}
- }
+	return(0);
+}
