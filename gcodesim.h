@@ -43,10 +43,10 @@ int		findSettingsValues(char **line, char axis, int sign);
 int		readValuesFromLine(char *line, point *currentPoint);
 short	***allocateMatrix();
 int		validateInput(int argc, char *argv[], FILE **file);
-int		clampValue(int value, int axis);
+void	clampValues(point *temp);
 void	lin_int_addPointToMatrix(point *current, point *old, short ***matrix);
 void	printMatrix(short ***matrix);
-short ***readAllLines(short ***matrix, FILE **file, int argc, char *argv[]);
+short	***readAllLines(short ***matrix, FILE **file, int argc, char *argv[]);
 void	freeMatrix(short ***matrix);
 char	*advancePtoChar(char *pointer, char c);
 int		isDigit(char c);
@@ -64,7 +64,7 @@ short	***matRotation(short ***matrix, int	axis, float angle);
 double	**allocate2DF();
 void	free2DF(double **p);
 double	**rotationGen(float angle, int axis);
-char *getShadeByPoint(int layer);
+char	*getShadeByPoint(int layer);
 
 //extern variables declaration
 extern settings *currentSettings;
