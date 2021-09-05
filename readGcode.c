@@ -226,6 +226,8 @@ void lin_int_addPointToMatrix(point *current, point *old, short ***matrix)
 	pointcpy(temp, old);
 	//first point
 	clampValues(temp);
+	clampValues(current);
+	clampValues(old);
 	matrix[temp->z][temp->y][temp->x] = 1;
 	//linear interpolation
 	if (temp->x > current->x)
@@ -489,6 +491,7 @@ int output(short ***matrix, int argc, char *argv[], FILE *file, int axis, float 
 	for (int l = 1; l < currentSettings->max; l++)
 		matrix[0] = mergeLayers(matrix[0], matrix[l]);
 	printLayer(matrix, 0);
+	freeMatrix(matrix);
 	return (0);
 }
 
@@ -508,16 +511,15 @@ int main(int argc, char *argv[])
 		return (1);
 	}
 	//      SINGLE ROTATION
-	//output(matrix, argc, argv, file, 2, 90);
+	output(matrix, argc, argv, file, 2, 90);
 
 	//      CONTINOUS ROTATION
 	while (1)
-		for (int i = 0; i < 360; i = i + 1)
-			output(matrix, argc, argv, file, 1, i);
+		// for (int i = 0; i < 360; i++)
+		// 	output(matrix, argc, argv, file, 1, i);
 
 	// printf("%s", getShadeByPoint(20));
 	//printf("\u258A\n");
-
 	return (0);
 }
 
