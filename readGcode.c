@@ -143,7 +143,7 @@ short ***allocateMatrix()
 		for (int k = 0; k < max; k++)
 		{
 			short *y = malloc(sizeof(short) * max);
-			for (int i = 0; i < max - 1; i++)
+			for (int i = 0; i < max; i++)
 				y[i] = 0;
 			matrix[j][k] = y;
 		}
@@ -487,11 +487,11 @@ void freeMatrix(short ***matrix)
 int output(short ***matrix, int argc, char *argv[], FILE *file, int axis, float angle)
 {
 	matrix = matRotation(matrix, axis, degtorad(angle));
-	matrix = matRotation(matrix, 2, degtorad(angle));
+	//matrix = matRotation(matrix, 2, degtorad(angle));
 	for (int l = 1; l < currentSettings->max; l++)
 		matrix[0] = mergeLayers(matrix[0], matrix[l]);
 	printLayer(matrix, 0);
-	freeMatrix(matrix);
+	//freeMatrix(matrix);
 	return (0);
 }
 
@@ -511,12 +511,12 @@ int main(int argc, char *argv[])
 		return (1);
 	}
 	//      SINGLE ROTATION
-	output(matrix, argc, argv, file, 2, 90);
+	//output(matrix, argc, argv, file, 2, 90);
 
 	//      CONTINOUS ROTATION
 	while (1)
-		// for (int i = 0; i < 360; i++)
-		// 	output(matrix, argc, argv, file, 1, i);
+		for (int i = 0; i < 360; i+=10)
+			output(matrix, argc, argv, file, 1, i);
 
 	// printf("%s", getShadeByPoint(20));
 	//printf("\u258A\n");
