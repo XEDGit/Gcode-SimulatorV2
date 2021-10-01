@@ -108,8 +108,6 @@ int	dotProduct(point *a, point *b)
 //      x:      2       |       z:      1       |       y:      0
 short	***matRotation(short ***matrix, int axis, float angle)
 {
-	if (angle == 0)
-		return (matrix);
 
 	double *origin;
 	double *multiplied;

@@ -33,7 +33,8 @@ void setZero(point *currentPoint)
 
 void putAxisIntoStruct(char axis, point *currentPoint, char *line)
 {
-	int i = 0;
+	int	i = 0;
+	int	halfZ = currentSettings->max / 2;
 	char *command = malloc(100);
 
 	while (*line != ' ' && axis != 'Z' && *line != '\n')
@@ -49,7 +50,7 @@ void putAxisIntoStruct(char axis, point *currentPoint, char *line)
 			command[i++] = *line++;
 		command[i] = 0;
 		//<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3
-		currentPoint->z = (int)((atof(command) / currentSettings->layerHeight));
+		currentPoint->z = (int)((atof(command) / currentSettings->layerHeight) + halfZ);
 	}
 	free(command);
 	return;
@@ -81,7 +82,7 @@ void putSettingsIntoStruct(char axis, int sign, char *line)
 int findAxisValues(char **line, point *currentPoint, char axis)
 {
 	char *temp_line = advancePtoChar(*line, axis);
-	if (temp_line == 0)
+	if (!temp_line)
 		return (0);
 	*line = temp_line;
 	if (!isDigit(**line))
@@ -93,7 +94,7 @@ int findAxisValues(char **line, point *currentPoint, char axis)
 int findSettingsValues(char **line, char axis, int sign)
 {
 	char *temp_line = advancePtoChar(*line, axis);
-	if (temp_line == 0)
+	if (!temp_line)
 		return (0);
 	*line = temp_line;
 	putSettingsIntoStruct(axis, sign, *line);
@@ -433,6 +434,11 @@ short ***readAllLines(short ***matrix, FILE **file, int argc, char *argv[])
 			matrix = allocateMatrix();
 			if (matrix != 0)
 				printf("3D model allocated.\n");
+			else
+			{
+				printf("Error allocating 3D model");
+				exit(6);
+			}
 			readSettings = 2;
 			//currentSettings debugging
 			printf("settings:\n     xmin: %d        xmax: %d\n      ymin: %d        ymax: %d\n      zmin: %d        zmax: %d\n", currentSettings->xMinMax[0], currentSettings->xMinMax[1], currentSettings->yMinMax[0], currentSettings->yMinMax[1], currentSettings->zMinMax[0], currentSettings->zMinMax[1]);
@@ -484,6 +490,19 @@ void freeMatrix(short ***matrix)
 	return;
 }
 
+//x: 2 | z: 1 | y: 0
+int output_two_rot(short ***matrix, int argc, char *argv[], FILE *file, int axis, int axistwo, float angle)
+{
+	matrix = matRotation(matrix, axis, degtorad(angle));
+	matrix = matRotation(matrix, axistwo, degtorad(angle));
+	for (int l = 1; l < currentSettings->max; l++)
+		matrix[0] = mergeLayers(matrix[0], matrix[l]);
+	printLayer(matrix, 0);
+	freeMatrix(matrix);
+	return (0);
+}
+
+//x: 2 | z: 1 | y: 0
 int output(short ***matrix, int argc, char *argv[], FILE *file, int axis, float angle)
 {
 	matrix = matRotation(matrix, axis, degtorad(angle));
@@ -491,7 +510,7 @@ int output(short ***matrix, int argc, char *argv[], FILE *file, int axis, float 
 	for (int l = 1; l < currentSettings->max; l++)
 		matrix[0] = mergeLayers(matrix[0], matrix[l]);
 	printLayer(matrix, 0);
-	//freeMatrix(matrix);
+	freeMatrix(matrix);
 	return (0);
 }
 
@@ -510,13 +529,14 @@ int main(int argc, char *argv[])
 		printf("Error reading file.");
 		return (1);
 	}
+
 	//      SINGLE ROTATION
-	//output(matrix, argc, argv, file, 2, 90);
+	//output(matrix, argc, argv, file, 1, 45);
 
 	//      CONTINOUS ROTATION
 	while (1)
 		for (int i = 0; i < 360; i+=10)
-			output(matrix, argc, argv, file, 1, i);
+			output_two_rot(matrix, argc, argv, file, 1, 2, i);
 
 	// printf("%s", getShadeByPoint(20));
 	//printf("\u258A\n");
