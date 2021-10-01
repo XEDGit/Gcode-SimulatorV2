@@ -152,7 +152,7 @@ short	***matRotation(short ***matrix, int axis, float angle)
 			}
 		}
 	}
-	//freeMatrix(matrix);
+	// freeMatrix(matrix);
 	return (result);
 }
 

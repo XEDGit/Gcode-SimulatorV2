@@ -35,22 +35,24 @@ void putAxisIntoStruct(char axis, point *currentPoint, char *line)
 {
 	int	i = 0;
 	int	halfZ = currentSettings->max / 2;
+	int value;
 	char *command = malloc(100);
 
 	while (*line != ' ' && axis != 'Z' && *line != '\n')
 		command[i++] = *line++;
 	command[i] = 0;
+	value = roundFloat(atof(command));
 	if (axis == 'X')
-		currentPoint->x = roundFloat(atof(command));
+		currentPoint->x = value / rateo;
 	else if (axis == 'Y')
-		currentPoint->y = roundFloat(atof(command));
+		currentPoint->y = value / rateo;
 	else if (axis == 'Z')
 	{
 		while (*line != ' ' && *line != '\n' && i < 99)
 			command[i++] = *line++;
 		command[i] = 0;
 		//<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3
-		currentPoint->z = (int)((atof(command) / currentSettings->layerHeight) + halfZ);
+		currentPoint->z = (int)(((value / currentSettings->layerHeight) / rateo) + halfZ);
 	}
 	free(command);
 	return;
@@ -59,6 +61,7 @@ void putAxisIntoStruct(char axis, point *currentPoint, char *line)
 void putSettingsIntoStruct(char axis, int sign, char *line)
 {
 	int i = 0;
+	int value;
 	char *command = malloc(100);
 
 	//sign for min = 0, sign for max = 1
@@ -67,14 +70,15 @@ void putSettingsIntoStruct(char axis, int sign, char *line)
 	while (*line != ' ' && *line != 0)
 		command[i++] = *line++;
 	command[i] = 0;
+	value = atof(command);
 	if (axis == 'X')
-		currentSettings->xMinMax[sign] = atof(command);
+		currentSettings->xMinMax[sign] = value;
 	else if (axis == 'Y')
-		currentSettings->yMinMax[sign] = atof(command);
+		currentSettings->yMinMax[sign] = value;
 	else if (axis == 'Z')
-		currentSettings->zMinMax[sign] = atof(command);
+		currentSettings->zMinMax[sign] = value;
 	else if (axis == 't')
-		currentSettings->layerHeight = atof(command);
+		currentSettings->layerHeight = value;
 	free(command);
 	return;
 }
@@ -277,8 +281,6 @@ void lin_int_addPointToMatrix(point *current, point *old, short ***matrix)
 			matrix[current->z][temp->y][temp->x] = 1;
 		}
 	}
-	// //end point //don't know if it's needed //leave it there for now //took out, i think it's not needed
-	// matrix[temp->z][temp->y][temp->x] = 1;
 	free(temp);
 	return;
 }
@@ -414,7 +416,7 @@ void setSettingsMax()
 		max = currentSettings->yMinMax[1];
 	if (currentSettings->zMinMax[1] / currentSettings->layerHeight > max)
 		max = currentSettings->zMinMax[1] / currentSettings->layerHeight;
-	currentSettings->max = max;
+	currentSettings->max = max / rateo;
 	return;
 }
 
@@ -535,8 +537,8 @@ int main(int argc, char *argv[])
 
 	//      CONTINOUS ROTATION
 	while (1)
-		for (int i = 0; i < 360; i+=10)
-			output_two_rot(matrix, argc, argv, file, 1, 2, i);
+		for (int i = 0; i < 360; i+=1)
+			{output_two_rot(matrix, argc, argv, file, 2, 1, i);}
 
 	// printf("%s", getShadeByPoint(20));
 	//printf("\u258A\n");
