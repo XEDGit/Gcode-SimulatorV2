@@ -1,7 +1,7 @@
 //
 // HOW TO USE: ./a.* <print rateo> <file name>
 //
-// print rateo is expressed like 1:<rateo>
+// print rateo is expressed like <rateo>:1
 //
 // file name must be the full name including extension, the full path is not needed
 //
@@ -35,24 +35,26 @@ void putAxisIntoStruct(char axis, point *currentPoint, char *line)
 {
 	int	i = 0;
 	int	halfZ = currentSettings->max / 2;
-	int value;
+	float value;
 	char *command = malloc(100);
 
 	while (*line != ' ' && axis != 'Z' && *line != '\n')
 		command[i++] = *line++;
 	command[i] = 0;
-	value = roundFloat(atof(command));
+	value = atof(command);
 	if (axis == 'X')
-		currentPoint->x = value / rateo;
+		currentPoint->x = roundFloat(value / rateo);
 	else if (axis == 'Y')
-		currentPoint->y = value / rateo;
+		currentPoint->y = roundFloat(value / rateo);
 	else if (axis == 'Z')
 	{
 		while (*line != ' ' && *line != '\n' && i < 99)
 			command[i++] = *line++;
 		command[i] = 0;
+		value = atof(command);
 		//<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3
-		currentPoint->z = (int)(((value / currentSettings->layerHeight) / rateo) + halfZ);
+		currentPoint->z = roundFloat(((value / currentSettings->layerHeight) / rateo) + halfZ);
+		printf("\n%f	%f	%f", value, currentSettings->layerHeight, value / currentSettings->layerHeight);
 	}
 	free(command);
 	return;
@@ -117,21 +119,21 @@ int readValuesFromLine(char *line, point *currentPoint)
 		return (1);
 	}
 	//settings
-	else if (line[0] == ';' && line[2] == 'A' && line[3] == 'X')
-	{
-		findSettingsValues(&line, line[4], 1);
-		return (2);
-	}
-	else if (line[0] == ';' && line[2] == 'I' && line[3] == 'N')
-	{
-		findSettingsValues(&line, line[4], 0);
-		return (2);
-	}
-	else if (line[0] == ';' && line[1] == 'L' && line[3] == 'y')
-	{
-		findSettingsValues(&line, 't', 0);
-		return (2);
-	}
+	// else if (line[0] == ';' && line[2] == 'A' && line[3] == 'X')
+	// {
+	// 	findSettingsValues(&line, line[4], 1);
+	// 	return (2);
+	// }
+	// else if (line[0] == ';' && line[2] == 'I' && line[3] == 'N')
+	// {
+	// 	findSettingsValues(&line, line[4], 0);
+	// 	return (2);
+	// }
+	// else if (line[0] == ';' && line[1] == 'L' && line[3] == 'y')
+	// {
+	// 	findSettingsValues(&line, 't', 0);
+	// 	return (2);
+	// }
 	return (0);
 }
 
@@ -354,6 +356,8 @@ int parseSettings(FILE **file)
 					i++;
 				}
 				command[i] = 0;
+				if (!minX)
+					minX = roundFloat(atof(command));
 				if (roundFloat(atof(command)) > maxX)
 					maxX = roundFloat(atof(command));
 				else if (roundFloat(atof(command)) < minX && atof(command) > 0)
@@ -370,6 +374,8 @@ int parseSettings(FILE **file)
 					i++;
 				}
 				command[i] = 0;
+				if (!minY)
+					minY = roundFloat(atof(command));
 				if (roundFloat(atof(command)) > maxY)
 					maxY = roundFloat(atof(command));
 				else if (roundFloat(atof(command)) < minY && atof(command) > 0)
@@ -401,7 +407,7 @@ int parseSettings(FILE **file)
 		currentSettings->yMinMax[1] = maxY;
 		currentSettings->zMinMax[0] = minZ;
 		currentSettings->zMinMax[1] = maxZ;
-		currentSettings->layerHeight = 0.2f;
+		currentSettings->layerHeight = 0.3f;
 	}
 	else
 		return (5);
@@ -444,7 +450,7 @@ short ***readAllLines(short ***matrix, FILE **file, int argc, char *argv[])
 			readSettings = 2;
 			//currentSettings debugging
 			printf("settings:\n     xmin: %d        xmax: %d\n      ymin: %d        ymax: %d\n      zmin: %d        zmax: %d\n", currentSettings->xMinMax[0], currentSettings->xMinMax[1], currentSettings->yMinMax[0], currentSettings->yMinMax[1], currentSettings->zMinMax[0], currentSettings->zMinMax[1]);
-			printf("%f", currentSettings->layerHeight);
+			printf("layer heigth:	%f", currentSettings->layerHeight);
 		}
 		pointcpy(oldPoint, currentPoint);
 		int index = readValuesFromLine(line, currentPoint);
@@ -536,9 +542,9 @@ int main(int argc, char *argv[])
 	//output(matrix, argc, argv, file, 1, 45);
 
 	//      CONTINOUS ROTATION
-	while (1)
-		for (int i = 0; i < 360; i+=1)
-			{output_two_rot(matrix, argc, argv, file, 2, 1, i);}
+	// while (1)
+	// 	for (int i = 0; i < 360; i+=1)
+	// 		{output(matrix, argc, argv, file, 2, i);}
 
 	// printf("%s", getShadeByPoint(20));
 	//printf("\u258A\n");
