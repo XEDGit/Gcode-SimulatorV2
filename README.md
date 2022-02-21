@@ -12,7 +12,8 @@ to render a rotating 3d model instead of the 2d top-down view of the building pr
 ## Warnings
 This project is abandoned (waiting for V3:pray:) and his final state is not completed, there's 
 some memory management issues in particular while handling big Gcode files, yet these are 
-managed by the operative system in all cases
+managed by the operative system in all known cases.
+Multiple features are present but not working, but when rateo doesn't get modified the program works mostly as expected.
 Windows version as expected is slower than Linux or Unix one, it's also not tested with latest
 features
 
@@ -31,3 +32,18 @@ or
     gcc matrixManager.c readGcode.c helperFunctions.c -lm -Ofast
     .\a.exe
 and you're ready to go!
+
+## Arguments
+The executable receives zero or two parameters, which are
+ * rateo
+ * source_file
+where
+### rateo
+Is the part of the display proportion rateo:1, with latest feature add this feature broke so leave at 1, or go over if you want to have fun :)
+### source_file
+the file which you choose to display, files which are more than 50MB will probably be pretty slow to load. Insert the full path or the relative path from the executable folder
+
+## Example:
+    ./a.out 1 hrt.gcode
+    ./a.out 2 /home/user/Gcode-SimulatorV2/hrt.gcode
+    ./a.out 1 /home/user/Desktop/myfile.gcode
