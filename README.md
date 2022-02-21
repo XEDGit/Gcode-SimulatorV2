@@ -1,9 +1,8 @@
 # Gcode-SimulatorV2
 
 ## What is it?
-It's the improved version of my [Gcode Simulator](https://github.com/XEDGit/Gcode-Simulator),
-so a full C Gcode file renderer which works in terminal or powershell rendering the model
-with characters
+It's the improved version of my [Gcode Simulator](https://github.com/XEDGit/Gcode-Simulator), so a full C Gcode file renderer 
+which works in terminal or powershell rendering the model with characters
 
 ## What changed?
 This time [hebekat](https://github.com/hebekat) helped me and we gained some basic C experience
