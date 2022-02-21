@@ -16,9 +16,17 @@ some memory management issues in particular while handling big Gcode files, yet 
 managed by the operative system in all cases
 
 ## Installation
+### Dependencies
+  * gcc
+
 Just simply clone the repo or download the folder, then go to your terminal and type:
-  ### Terminal:
-  cd /.../path_to_the_repo
-  make
-  ./a.out
+### Terminal:
+    cd /.../path_to_the_repo/
+    make
+    ./a.out
+or
+### Powershell:
+    cd \...\path_to_the_repo\
+    gcc matrixManager.c readGcode.c helperFunctions.c -lm -Ofast
+    .\a.exe
 and you're ready to go!
