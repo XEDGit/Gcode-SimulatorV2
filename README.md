@@ -13,6 +13,7 @@ to render a rotating 3d model instead of the 2d top-down view of the building pr
 This project is abandoned (waiting for V3:pray:) and his final state is not completed, there's 
 some memory management issues in particular while handling big Gcode files, yet these are 
 managed by the operative system in all known cases.
+The dimensions of the scene are not properly displaying if the model isn't cubic in it's extreme far from center points.
 Multiple features are present but not working, but when rateo doesn't get modified the program works mostly as expected.
 Windows version as expected is slower than Linux or Unix one, it's also not tested with latest
 features
