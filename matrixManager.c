@@ -83,10 +83,10 @@ int *crossProduct(point *a, point *b)
 	return(result);
 }
 
-point *pointsAround(point *b)
-{
-	point *result = malloc(sizeof(point) * 2);
-}
+// point *pointsAround(point *b)
+// {
+// 	point *result = malloc(sizeof(point) * 2);
+// }
 
 int dotProduct(point *a, point *b)
 {
@@ -110,7 +110,7 @@ int dotProduct(point *a, point *b)
 
 //axis:
 //	x:	2	|	z:	1	|	y:	0
-short	***matRotation(short ***matrix, int	axis, float angle)
+char	***matRotation(char ***matrix, int	axis, float angle)
 {
 	if(angle == 0)
 		return (matrix);
@@ -125,7 +125,7 @@ short	***matRotation(short ***matrix, int	axis, float angle)
 	int		zaxis = currentSettings->zMinMax[1] / currentSettings->layerHeight;
 	int		yaxis = currentSettings->yMinMax[1] / rateo;
 	int		xaxis = currentSettings->xMinMax[1] / rateo;
-	short	***result = allocateMatrix();
+	char	***result = allocateMatrix();
 
 	lightSource->x = 100 ;
 	lightSource->y = 100;

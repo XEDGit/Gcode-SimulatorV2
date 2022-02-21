@@ -127,21 +127,21 @@ int		readValuesFromLine(char *line, point *currentPoint)
 	return(0);
 }
 
-short	***allocateMatrix()
+char	***allocateMatrix()
 {
 	int	zaxis = currentSettings->zMinMax[1] / currentSettings->layerHeight ;
 	int	yaxis = currentSettings->yMinMax[1] / rateo ;
 	int	xaxis = currentSettings->xMinMax[1] / rateo ;
 
-	short ***matrix = malloc(sizeof(short **) * (zaxis + 1));
+	char ***matrix = malloc(sizeof(char **) * (zaxis + 1));
 	for(int j = 0; j <= zaxis; j++)
 	{
-		short **z = malloc(sizeof(short *) * yaxis);
+		char **z = malloc(sizeof(char *) * yaxis);
 		matrix[j] = z;
 
 		for(int k = 0; k < yaxis; k++)
 		{
-			short *y = malloc(sizeof(short) * xaxis);
+			char *y = malloc(sizeof(char) * xaxis);
 			for(int i = 0; i < xaxis; i++)
 				y[i] = 0;
 			matrix[j][k] = y;
@@ -195,12 +195,11 @@ int		validateInput(int argc, char *argv[], FILE **file)
 //axis 0 = x; 1 = y; 2 = z
 int		clampValue(int value, int axis) 
 {
-	value--;
 	if (value < 0)
 		value = 0;
 	if (axis == 1)
 	{
-		if (value >= currentSettings->yMinMax[1] - rateo)
+		if (value >= currentSettings->yMinMax[1] / rateo)
 		{
 			value = currentSettings->yMinMax[1];
 			return ((value / rateo) - 1);
@@ -208,7 +207,7 @@ int		clampValue(int value, int axis)
 	}
 	else if (axis == 0)
 	{
-		if (value >= currentSettings->xMinMax[1] - rateo)
+		if (value >= currentSettings->xMinMax[1] / rateo)
 		{
 			value = currentSettings->xMinMax[1];
 			return ((value / rateo) - 1);
@@ -224,9 +223,8 @@ int		clampValue(int value, int axis)
 	return (value / rateo);
 }
 
-void	lin_int_addPointToMatrix(point *current, point *old, short ***matrix)
+void	lin_int_addPointToMatrix(point *current, point *old, char ***matrix)
 {
-	int shades = 16;
 	point *temp = malloc(sizeof(point));
 	pointcpy(temp, old);
 	int	maxZ = currentSettings->zMinMax[1] / currentSettings->layerHeight;
@@ -279,7 +277,7 @@ void	lin_int_addPointToMatrix(point *current, point *old, short ***matrix)
 	free(temp);
 }
 
-void	printMatrix(short ***matrix)
+void	printMatrix(char ***matrix)
 {
 	for(int j = 1; j < currentSettings->zMinMax[1] / currentSettings->layerHeight; j++)
 	{
@@ -297,35 +295,38 @@ void	printMatrix(short ***matrix)
 	}
 }
 
-void	printLayer(short ***matrix , int layer)
+void	printLayer(char ***matrix , int layer)
 {
-		int lastColor = 0;
-		system(CLEAR);
-		for(int k = 0 / rateo /2; k <= (currentSettings->yMinMax[1] / rateo) - 1; k++)
-		{
-			for(int l = 0; l <= (currentSettings->xMinMax[1] / rateo) - 1; l++)
-				if (matrix[layer][k][l])
-				{
-					if(matrix[layer][k][l] != lastColor)
-					{
-						getShadeByPoint(matrix[layer][k][l]);
-						lastColor = matrix[layer][k][l] ;
-					}
-					printf("%s ", getShadeByPoint(matrix[layer][k][l]));			
-					//printf("%d ", matrix[layer][k][l]  );	
-					
-					
-				}
-				else
-					printf("  ");
-			printf("\n");
-		}
+	// int lastColor = 0;
+	system(CLEAR);
+	int matrix_size = (currentSettings->yMinMax[1] / rateo) * (currentSettings->xMinMax[1] / rateo) * (currentSettings->zMinMax[1] / currentSettings->layerHeight) * 2 + (currentSettings->zMinMax[1] / currentSettings->layerHeight);
+	char *buffer = malloc(matrix_size + 1);
+	buffer[matrix_size] = 0;
+	int buff_c = 0;
+	for (int k = 0; k < (currentSettings->yMinMax[1] / rateo); k++)
+	{
+		for(int l = 0; l < (currentSettings->xMinMax[1] / rateo); l++)
+			if (matrix[layer][k][l])
+			{
+				buffer[buff_c++] = 'x';
+				buffer[buff_c++] = 'x';
+			}
+			else
+			{
+				buffer[buff_c++] = ' ';
+				buffer[buff_c++] = ' ';
+			}
+		buffer[buff_c++] = '\n';
+	}
+	printf("%s", buffer);
+	free(buffer);
 }
 
-short ***readAllLines(short ***matrix, FILE **file)
+char ***readAllLines(FILE **file)
 {
 	char line[256];
 	int readSettings = 1;
+	char ***matrix = NULL;
 	point *oldPoint = malloc(sizeof(point));
 	point *currentPoint = malloc(sizeof(point));
 
@@ -358,11 +359,10 @@ short ***readAllLines(short ***matrix, FILE **file)
 	return (matrix);
 }
 
-void freeMatrix(short ***matrix)
+void freeMatrix(char ***matrix)
 {
 	int	zaxis = currentSettings->zMinMax[1] / currentSettings->layerHeight;
 	int	yaxis = currentSettings->yMinMax[1] / rateo;
-	int	xaxis = currentSettings->xMinMax[1] / rateo;
 
 	for(int j = 0; j <= zaxis; j++)
 	{
@@ -373,7 +373,7 @@ void freeMatrix(short ***matrix)
 	free(matrix);
 }
 
-int	output(short ***matrix, int argc, char *argv[], FILE *file , int axis, float angle)
+int	output(char ***matrix, float angle)
 {
 	matrix = matRotation(matrix, 0, degtorad(angle));
 	matrix = matRotation(matrix, 1, degtorad(angle));
@@ -385,14 +385,14 @@ int	output(short ***matrix, int argc, char *argv[], FILE *file , int axis, float
 
 int main(int argc, char *argv[]) 
 {
-	FILE *file;
-	short ***matrix;
+	FILE *file = NULL;
+	char ***matrix = NULL;
 
 	currentSettings = malloc(sizeof(settings));
 	if (validateInput(argc, argv, &file))
 		return (1);
 	if (file != 0)
-		matrix = readAllLines(matrix, &file);
+		matrix = readAllLines(&file);
 	else
 	{
 		printf("Error reading file.");
@@ -401,7 +401,7 @@ int main(int argc, char *argv[])
 
 	while (1)
 		for (int i = 0; i < 360; i++)
-			output(matrix, argc, argv, file, 1, i);
+			output(matrix, i);
 	
 	// printf("%s", getShadeByPoint(20));
 	//printf("\u258A\n");
@@ -416,7 +416,7 @@ int main(int argc, char *argv[])
 
 //axis:
 //	x:	2	|	y:	1	|	z:	0
-// int	outputcl(short ***matrix, int argc, char *argv[], FILE *file , int axis, float angle)
+// int	outputcl(char ***matrix, int argc, char *argv[], FILE *file , int axis, float angle)
 // {
 // 	//freeMatrix(matrix);
 // 	if (validateInput(argc, argv, &file))
