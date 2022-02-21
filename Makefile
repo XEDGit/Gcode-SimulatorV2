@@ -1,5 +1,5 @@
 compile:
-	gcc -Wextra -Wall -Werror matrixManager.c readGcode.c helperFunctions.c -lm
+	gcc -Wextra -Wall -Werror matrixManager.c readGcode.c helperFunctions.c -lm -Ofast
 
 scale:
 	gcc matrixManager.c readGcode.c helperFunctions.c -lm && ./a.out 5
