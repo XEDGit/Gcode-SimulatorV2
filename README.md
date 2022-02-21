@@ -7,13 +7,15 @@ with characters
 
 ## What changed?
 This time [hebekat](https://github.com/hebekat) helped me and we gained some basic C experience
-from our @42college admission exam, but we decided to go crazy with fratures and decided to try
+from our @42college admission exam, but we decided to go crazy with features and decided to try
 to render a rotating 3d model instead of the 2d top-down view of the building process as the V1
 
 ## Warnings
 This project is abandoned (waiting for V3:pray:) and his final state is not completed, there's 
 some memory management issues in particular while handling big Gcode files, yet these are 
 managed by the operative system in all cases
+Windows version as expected is slower than Linux or Unix one, it's also not tested with latest
+features
 
 ## Installation
 ### Dependencies
