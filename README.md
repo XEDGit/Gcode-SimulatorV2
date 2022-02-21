@@ -24,12 +24,14 @@ features
 
 Just simply clone the repo or download the folder, then go to your terminal and type:
 ### Terminal:
-    cd /.../path_to_the_repo/
+    git clone git@github.com:XEDGit/Gcode-SimulatorV2.git
+    cd Gcode-SimulatorV2
     make
     ./a.out
 or
 ### Powershell:
-    cd \...\path_to_the_repo\
+    git clone git@github.com:XEDGit/Gcode-SimulatorV2.git
+    cd Gcode-SimulatorV2
     gcc matrixManager.c readGcode.c helperFunctions.c -lm -Ofast
     .\a.exe
 and you're ready to go!
