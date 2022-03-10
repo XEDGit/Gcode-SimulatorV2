@@ -398,14 +398,11 @@ int main(int argc, char *argv[])
 		printf("Error reading file.");
 		return (1);
 	}
-
 	while (1)
 		for (int i = 0; i < 360; i++)
 			output(matrix, i);
-	
 	// printf("%s", getShadeByPoint(20));
 	//printf("\u258A\n");
-	
 	return (0);
 }
 
