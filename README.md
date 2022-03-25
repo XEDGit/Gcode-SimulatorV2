@@ -40,7 +40,7 @@ and you're ready to go!
 The executable receives zero or two parameters, which are
  * rateo
  * source_file
-where
+
 ### rateo
 Is the part of the display proportion rateo:1, with latest feature add this feature broke so leave at 1, or go over if you want to have fun :)
 ### source_file
