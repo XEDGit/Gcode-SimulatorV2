@@ -1,7 +1,7 @@
 # Gcode-SimulatorV2
 
 ## What is it?
-It's the improved version of my [Gcode Simulator](https://github.com/XEDGit/Gcode-Simulator), so a full C Gcode file renderer 
+It's the improved version of my [Gcode Simulator V1](https://github.com/XEDGit/Gcode-Simulator), so a full C Gcode file renderer 
 which works in terminal or powershell rendering the model with characters
 
 ## What changed?
@@ -34,6 +34,7 @@ or
     cd Gcode-SimulatorV2
     gcc matrixManager.c readGcode.c helperFunctions.c -lm -Ofast
     .\a.exe
+    
 and you're ready to go!
 
 ## Arguments
