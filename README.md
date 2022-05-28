@@ -11,9 +11,9 @@ This time [hebekat](https://github.com/hebekat) helped me and we gained some bas
 from our @42college admission exam, but we decided to go crazy with features and decided to try
 to render a rotating 3d model instead of the 2d top-down view of the building process as the V1
 
-## Warnings
+## ⚠️ Warnings
 
-This project is abandoned (waiting for V3:pray:) and his final state is not completed, there's 
+This project is abandoned (waiting for V3:pray:) and its final state is not completed, there's 
 some memory management issues in particular while handling big Gcode files, yet these are 
 managed by the operative system in all known cases.
 The dimensions of the scene are not properly displaying if the model isn't cubic in it's extreme far from center points.
@@ -36,7 +36,7 @@ cd Gcode-SimulatorV2
 make
 ./a.out
 ```
-or
+
 ### Powershell:
 
 ```console
