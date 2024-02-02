@@ -28,6 +28,7 @@ typedef struct point {
 
 typedef struct settings {
 	float layerHeight;
+	int max;
 	int xMinMax[2];
 	int yMinMax[2];
 	int zMinMax[2];
@@ -40,29 +41,28 @@ void	putSettingsIntoStruct(char axis, int sign, char *line);
 int		findAxisValues(char **line, point *currentPoint, char axis);
 int		findSettingsValues(char **line, char axis, int sign);
 int		readValuesFromLine(char *line, point *currentPoint);
-char	***allocateMatrix();
+char	***allocateMatrix(int max);
 int		validateInput(int argc, char *argv[], FILE **file);
 int		clampValue(int value, int axis);
 void	lin_int_addPointToMatrix(point *current, point *old, char ***matrix);
 void	printMatrix(char ***matrix);
 char	***readAllLines(FILE **file);
-void	freeMatrix(char ***matrix);
+void	freeMatrix(char ***matrix, int size);
+void	clearLayer(char **layer);
 char	*advancePtoChar(char *pointer, char c);
 int		isDigit(char c);
 void	pointcpy(point *p1, point *p2);
 int		roundFloat(float value);
 int		lin_int(int x1, int y1, int x2, int y2, int x);
-char	**mergeLayers(char **l1, char **l2);
+char	**mergeLayers(char **l1, char **l2, int depth);
 double	degtorad(int deg);
-double	*pointToArray(point *pt);
-point	*arrayToPoint(double *pt);
-double	*distToCenter(int x, int y, int z);
-point	*findPointInMatrix(double *pt);
-double	*matMul(double **projection, int size, double *pt);
-char	***matRotation(char ***matrix, int	axis, float angle);
+point	distToCenter(int x, int y, int z);
+point	findPointInMatrix(point *pt);
+point	matMul(double (*projection)[3], int size, point *pt);
+char 	***matRotation(char ***matrix, char*** res, double (*projection)[3][3], int	axis, float angle, int max);
 double	**allocate2DF();
 void	free2DF(double **p);
-double	**rotationGen(float angle, int axis);
+void	rotationGen(double (*result)[3][3], float angle, int axis);
 char	*getShadeByPoint(int layer);
 
 //extern variables declaration

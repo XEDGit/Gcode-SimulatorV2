@@ -49,14 +49,14 @@ int	lin_int(int x1, int y1, int x2, int y2, int x)
 }
 
 
-char	**mergeLayers(char **l1, char **l2)
+char	**mergeLayers(char **l1, char **l2, int depth)
 {
-	for (int i = 0; i < (currentSettings->yMinMax[1] / rateo) - 1; i++)
+	for (int i = 0; i <= currentSettings->max; i++)
 	{
-		for (int j = 0; j < (currentSettings->xMinMax[1] / rateo) - 1; j++)
+		for (int j = 0; j <= currentSettings->max; j++)
 		{
 			if (l2[i][j] != 0)
-				l1[i][j] = l2[i][j];
+				l1[i][j] = depth;
 		}
 	}
 	return (l1);

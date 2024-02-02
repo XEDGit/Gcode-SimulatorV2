@@ -32,31 +32,31 @@ void	setZero(point *currentPoint)
 
 void	putAxisIntoStruct(char axis, point *currentPoint, char *line)
 {
-	int i = 0;
-	char	*command = malloc(100);
+	int		i = 0;
+	char	command[100];
 
 	while (*line != ' ' && axis != 'Z' && *line != '\n')
 		command[i++] = *line++;
 	command[i] = 0;
 	if (axis == 'X')
-		currentPoint->x = roundFloat(atof(command));
+		currentPoint->x = roundFloat(atof(command) / rateo);
 	else if (axis == 'Y')
-		currentPoint->y = roundFloat(atof(command));
+		currentPoint->y = roundFloat(atof(command) / rateo);
 	else if (axis == 'Z')
 	{
 		while(*line != ' ' && *line != '\n')
 			command[i++] = *line++;
 		command[i] = 0;
+		float val = atof(command);
 		//<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3<3
-		currentPoint->z = (int) ((atof(command) / currentSettings->layerHeight) + 1);
+		currentPoint->z = (int) ((val / rateo / currentSettings->layerHeight) + 1);
 	}
-	free(command);
 }
 
 void	putSettingsIntoStruct(char axis, int sign, char *line)
 {
 	int i = 0;
-	char	*command = malloc(100);
+	char	command[100];
 
 	//sign for min = 0, sign for max = 1
 	while (!isDigit(*line))
@@ -65,14 +65,13 @@ void	putSettingsIntoStruct(char axis, int sign, char *line)
 		command[i++] = *line++;
 	command[i] = 0;
 	if (axis == 'X')
-		currentSettings->xMinMax[sign] = atof(command);
+		currentSettings->xMinMax[sign] = atof(command) / rateo;
 	else if (axis == 'Y')
-		currentSettings->yMinMax[sign] = atof(command);
+		currentSettings->yMinMax[sign] = atof(command) / rateo;
 	else if (axis == 'Z')
-		currentSettings->zMinMax[sign] = atof(command);
+		currentSettings->zMinMax[sign] = atof(command) / rateo;
 	else if (axis == 't')
 		currentSettings->layerHeight = atof(command);
-	free(command);
 }
 
 int		findAxisValues(char **line, point *currentPoint, char axis)
@@ -109,17 +108,19 @@ int		readValuesFromLine(char *line, point *currentPoint)
 		return (1);
 	}
 	//settings
-	else if (line[0] == ';' && line[2] == 'A' && line[3] == 'X')
+	else if (line[0] != ';')
+		return (0);
+	else if (line[2] == 'A' && line[3] == 'X')
 	{
 		findSettingsValues(&line, line[4], 1);
 		return (2);
 	}
-	else if (line[0] == ';' && line[2] == 'I' && line[3] == 'N')
+	else if (line[2] == 'I' && line[3] == 'N')
 	{
 		findSettingsValues(&line, line[4], 0);
 		return (2);
 	}
-	else if (line[0] == ';' && line[1] == 'L' && line[3] == 'y')
+	else if (line[1] == 'L' && line[3] == 'y')
 	{
 		findSettingsValues(&line, 't', 0);
 		return (2);
@@ -127,68 +128,74 @@ int		readValuesFromLine(char *line, point *currentPoint)
 	return(0);
 }
 
-char	***allocateMatrix()
+char **allocateLayer(int max)
 {
-	int	zaxis = currentSettings->zMinMax[1] / currentSettings->layerHeight ;
-	int	yaxis = currentSettings->yMinMax[1] / rateo ;
-	int	xaxis = currentSettings->xMinMax[1] / rateo ;
+	int	yaxis = currentSettings->yMinMax[1];
+	int	xaxis = currentSettings->xMinMax[1];
+
+	if (max)
+		yaxis = xaxis = max;
+
+	char **layer = malloc(sizeof(char **) * (yaxis + 1));
+	for(int k = 0; k <= yaxis; k++)
+	{
+		char *y = malloc(sizeof(char) * (xaxis + 1));
+		for(int i = 0; i <= xaxis; i++)
+			y[i] = 0;
+		layer[k] = y;
+	}
+	return (layer);
+}
+
+char	***allocateMatrix(int max)
+{
+	int	zaxis = currentSettings->zMinMax[1];
+
+	if (max)
+		zaxis = max;
 
 	char ***matrix = malloc(sizeof(char **) * (zaxis + 1));
 	for(int j = 0; j <= zaxis; j++)
 	{
-		char **z = malloc(sizeof(char *) * yaxis);
-		matrix[j] = z;
-
-		for(int k = 0; k < yaxis; k++)
-		{
-			char *y = malloc(sizeof(char) * xaxis);
-			for(int i = 0; i < xaxis; i++)
-				y[i] = 0;
-			matrix[j][k] = y;
-		}
+		matrix[j] = allocateLayer(max);
 	}
 	return (matrix);
 }
 
 int		validateInput(int argc, char *argv[], FILE **file)
 {
-	if (argc == 2)
+	*file = fopen("hello.gcode", "r");
+	rateo = 1;
+
+	if (argc >= 2)
 	{
 		if (atoi(argv[1]) != 0 && atoi(argv[1]) <= 100 && atoi(argv[1]) >= 1)
 			rateo = atoi(argv[1]);
-		else
-		{
-			printf(RATEO_ERR);
-			return (1);
-		}
-		*file = fopen("hello.gcode", "r");
+		
 	}
-	else if (argc == 3)
+	else if (argc >= 3)
 	{
-		*file = fopen(argv[2], "r");
-		if (atoi(argv[1]) <= 100 && atoi(argv[1]) > 0)
-			rateo = atoi(argv[1]);
-		else
+		if (!(argv[2][0] == '_' && !argv[2][1]))
 		{
-			printf(RATEO_ERR);
-			return (1);
+			fclose(*file);
+			*file = fopen(argv[2], "r");
 		}
-		return (0);
 	}
-	else if (argc == 4)
-	{
-		*file = fopen(argv[2], "r");
+	else if (argc >= 4)
 		character = argv[3][0];
-		if (atoi(argv[1]) <= 100 && atoi(argv[1]) > 0)
-			rateo = atoi(argv[1]);
-		else
-		{
-			printf(RATEO_ERR);
-			return (1);
-		}
-		return (0);
+	
+	if (!rateo)
+	{
+		fclose(*file);
+		printf(RATEO_ERR);
+		return (1);
 	}
-	*file = fopen("hello.gcode", "r");
+	if (!*file)
+	{
+		fclose(*file);
+		printf(FILE_ERR);
+		return (1);
+	}
 	return (0);
 }
 
@@ -199,95 +206,101 @@ int		clampValue(int value, int axis)
 		value = 0;
 	if (axis == 1)
 	{
-		if (value >= currentSettings->yMinMax[1] / rateo)
+		if (value >= currentSettings->yMinMax[1])
 		{
 			value = currentSettings->yMinMax[1];
-			return ((value / rateo) - 1);
+			return (value - 1);
 		}
 	}
 	else if (axis == 0)
 	{
-		if (value >= currentSettings->xMinMax[1] / rateo)
+		if (value >= currentSettings->xMinMax[1])
 		{
 			value = currentSettings->xMinMax[1];
-			return ((value / rateo) - 1);
+			return (value - 1);
 		}
 	}
 	else if (axis == 2)
 	{
 		value++;
-		if (value >= (currentSettings->zMinMax[1] / currentSettings->layerHeight))
-			value = (currentSettings->zMinMax[1] / currentSettings->layerHeight) - 1;
+		if (value >= currentSettings->zMinMax[1])
+			value = (currentSettings->zMinMax[1]) - 1;
 		return (value);
 	}
-	return (value / rateo);
+	return (value);
 }
 
 void	lin_int_addPointToMatrix(point *current, point *old, char ***matrix)
 {
-	point *temp = malloc(sizeof(point));
-	pointcpy(temp, old);
-	int	maxZ = currentSettings->zMinMax[1] / currentSettings->layerHeight;
+	point temp;
+	pointcpy(&temp, old);
+	if (old->x >= currentSettings->xMinMax[1] ||
+	old->y >= currentSettings->yMinMax[1] ||
+	old->z >= currentSettings->zMinMax[1] ||
+	current->x >= currentSettings->xMinMax[1] ||
+	current->y >= currentSettings->yMinMax[1] ||
+	current->z >= currentSettings->zMinMax[1])
+		return ;
 	//first point
-	matrix[clampValue(temp->z, 2)][clampValue(temp->y, 1)][clampValue(temp->x, 0)] = temp->z / (maxZ / 8);
+	matrix[temp.z][temp.y][temp.x] = 1;
 	//linear interpolation
-	if (temp->x > current->x)
+	if (temp.x > current->x)
 	{
-		while (temp->y != current->y || temp->x != current->x)
+		while (temp.y != current->y || temp.x != current->x)
 		{
-			temp->x--;
-			temp->y = lin_int(old->x, old->y, current->x, current->y, temp->x);
-			matrix[clampValue(temp->z, 2)][clampValue(temp->y, 1)][clampValue(temp->x, 0)] = temp->z / (maxZ / 8);
+			temp.x--;
+			temp.y = lin_int(old->x, old->y, current->x, current->y, temp.x);
+			matrix[temp.z][temp.y][temp.x] = 1;
 		}
 	}
-	else if (temp->x < current->x)
+	else if (temp.x < current->x)
 	{
-		while (temp->y != current->y || temp->x != current->x)
+		while (temp.y != current->y || temp.x != current->x)
 		{
-			temp->x++;
-			temp->y = lin_int(old->x, old->y, current->x, current->y, temp->x);
-			matrix[clampValue(temp->z, 2)][clampValue(temp->y, 1)][clampValue(temp->x, 0)] = temp->z / (maxZ / 8);
+			temp.x++;
+			temp.y = lin_int(old->x, old->y, current->x, current->y, temp.x);
+			matrix[temp.z][temp.y][temp.x] = 1;
 		}
 	}
 	else
 	{
-		if (temp->y > current->y)
+		if (temp.y > current->y)
 		{
-			while (temp->y != current->y || temp->x != current->x)
+			while (temp.y != current->y || temp.x != current->x)
 			{
-				temp->y--;
-				matrix[clampValue(temp->z, 2)][clampValue(temp->y, 1)][clampValue(temp->x, 0)] = temp->z / (maxZ / 8);
+				temp.y--;
+				matrix[temp.z][temp.y][temp.x] = 1;
 			}
 		}
-		else if (temp->y < current->y)
+		else if (temp.y < current->y)
 		{
-			while (temp->y != current->y || temp->x != current->x)
+			while (temp.y != current->y || temp.x != current->x)
 			{
-				temp->y++;
-				matrix[clampValue(current->z, 2)][clampValue(temp->y, 1)][clampValue(temp->x, 0)] = temp->z / (maxZ / 8);
+				temp.y++;
+				matrix[current->z][temp.y][temp.x] = 1;
 			}
 		}
 		else
 		{
-			matrix[clampValue(current->z, 2)][clampValue(temp->y, 1)][clampValue(temp->x, 0)] = temp->z / (maxZ / 8);
+			matrix[current->z][temp.y][temp.x] = 1;
 		}
 	}
 	//end point //don't know if it's needed //leave it there for now
-	matrix[clampValue(temp->z, 2)][clampValue(temp->y, 1)][clampValue(temp->x, 0)] = temp->z / (maxZ / 8);
-	free(temp);
+	matrix[temp.z][temp.y][temp.x] = 1;
 }
 
 void	printMatrix(char ***matrix)
 {
-	for(int j = 1; j < currentSettings->zMinMax[1] / currentSettings->layerHeight; j++)
+	for(int j = 1; j < currentSettings->zMinMax[1]; j++)
 	{
 		//system(CLEAR); //CLEAR defined in gcodesim.h
+		char ch = character;
 		printf("====================== LAYER %d =========================================\n", j);
-		for(int k = 0; k <= (currentSettings->yMinMax[1] / rateo) - 1; k++)
+		for(int k = 0; k <= currentSettings->yMinMax[1] - 1; k++)
 		{
-			for(int l = 0; l <= (currentSettings->xMinMax[1] / rateo) - 1; l++)
+			for(int l = 0; l <= currentSettings->xMinMax[1] - 1; l++)
 				if (matrix[j][k][l])
-					printf("%c ", character);
+					printf("%c ", ch);
 				else
 					printf("  ");
 			printf("\n");
@@ -295,31 +308,39 @@ void	printMatrix(char ***matrix)
 	}
 }
 
+#include <sys/time.h>
+#include <unistd.h>
 void	printLayer(char ***matrix , int layer)
 {
 	// int lastColor = 0;
-	system(CLEAR);
-	int matrix_size = (currentSettings->yMinMax[1] / rateo) * (currentSettings->xMinMax[1] / rateo) * (currentSettings->zMinMax[1] / currentSettings->layerHeight) * 2 + (currentSettings->zMinMax[1] / currentSettings->layerHeight);
-	char *buffer = malloc(matrix_size + 1);
+	static char chars[] = " @%#*+=-:.";
+	static int chlen = 0;
+	static struct timeval last = {0};
+	struct timeval now;
+	gettimeofday(&now, 0);
+	while ((((now.tv_sec - last.tv_sec) * 1000000) + (now.tv_usec -last.tv_usec)) < 15000) {
+		gettimeofday(&now, 0);
+		usleep(1500);
+	}
+	if (chlen == 0)
+		while (chars[chlen++]);
+	if (!system(CLEAR))
+		(void)layer;
+	int matrix_size = currentSettings->yMinMax[1] * currentSettings->xMinMax[1] * (currentSettings->zMinMax[1]) * 2 + (currentSettings->zMinMax[1]);
+	char buffer[matrix_size + 1];
 	buffer[matrix_size] = 0;
 	int buff_c = 0;
-	for (int k = 0; k < (currentSettings->yMinMax[1] / rateo); k++)
+	for (int k = 0; k <= (currentSettings->max); k++)
 	{
-		for(int l = 0; l < (currentSettings->xMinMax[1] / rateo); l++)
-			if (matrix[layer][k][l])
-			{
-				buffer[buff_c++] = 'x';
-				buffer[buff_c++] = 'x';
-			}
-			else
-			{
-				buffer[buff_c++] = ' ';
-				buffer[buff_c++] = ' ';
-			}
+		for(int l = 0; l <= (currentSettings->max); l++) {
+				int c = ((float)matrix[layer][k][l] / currentSettings->max) * chlen;
+				buffer[buff_c++] = chars[c];
+				buffer[buff_c++] = chars[c];
+		}
 		buffer[buff_c++] = '\n';
 	}
-	printf("%s", buffer);
-	free(buffer);
+	write(1, buffer, buff_c);
+	last = now;
 }
 
 char ***readAllLines(FILE **file)
@@ -327,80 +348,122 @@ char ***readAllLines(FILE **file)
 	char line[256];
 	int readSettings = 1;
 	char ***matrix = NULL;
-	point *oldPoint = malloc(sizeof(point));
-	point *currentPoint = malloc(sizeof(point));
+	point oldPoint;
+	point currentPoint;
 
-	setZero(currentPoint);
+	setZero(&currentPoint);
 	while (fgets(line, sizeof(line), *file))
 	{
 		if (!readSettings)
 		{
 			printf("Settings succesfully parsed.\n");
-			matrix = allocateMatrix();
+			matrix = allocateMatrix(0);
 			if(matrix != 0)
 				printf("3D model allocated.\n");
 			readSettings = 2;
 		}
-		pointcpy(oldPoint, currentPoint);
-		int index = readValuesFromLine(line, currentPoint);
+		pointcpy(&oldPoint, &currentPoint);
+		int index = readValuesFromLine(&line[0], &currentPoint);
 		if(index == 1)
 		{
 			if (readSettings == 1)
 			{
+				currentSettings->zMinMax[1] /= currentSettings->layerHeight;
+				currentSettings->max = currentSettings->xMinMax[1];
+				if (currentSettings->max < currentSettings->yMinMax[1])
+					currentSettings->max = currentSettings->yMinMax[1];
+				if (currentSettings->max < currentSettings->zMinMax[1])
+					currentSettings->max = currentSettings->zMinMax[1];
 				readSettings = 0;
 				continue;
 			}
-			if (currentPoint->mode)
-				lin_int_addPointToMatrix(currentPoint, oldPoint, matrix);
+			if (currentPoint.mode)
+				lin_int_addPointToMatrix(&currentPoint, &oldPoint, matrix);
 		}
 	}
-	free(oldPoint);
-	free(currentPoint);
 	return (matrix);
 }
 
-void freeMatrix(char ***matrix)
+void clearLayer(char **layer)
 {
-	int	zaxis = currentSettings->zMinMax[1] / currentSettings->layerHeight;
-	int	yaxis = currentSettings->yMinMax[1] / rateo;
+	int	max = currentSettings->max;
+
+	for(int j = 0; j <= max; j++)
+		for(int k = 0; k <= max; k++)
+			layer[j][k] = 0;
+}
+
+void freeLayer(char **layer, int size)
+{
+	int	yaxis = currentSettings->yMinMax[1];
+
+	if (size)
+		yaxis = size;
+
+	for(int k = 0; k <= yaxis; k++)
+		free(layer[k]);
+	free(layer);
+}
+
+void freeMatrix(char ***matrix, int size)
+{
+	int	zaxis = currentSettings->zMinMax[1];
+
+	if (size)
+		zaxis = size;
 
 	for(int j = 0; j <= zaxis; j++)
-	{
-		for(int k = 0; k < yaxis; k++)
-			free(matrix[j][k]);
-		free(matrix[j]);
-	}
+		freeLayer(matrix[j], size? size : currentSettings->yMinMax[1]);
 	free(matrix);
 }
 
-int	output(char ***matrix, float angle)
+int	output(char ***matrix, double (*projection)[3][3], float angle)
 {
-	matrix = matRotation(matrix, 0, degtorad(angle));
-	matrix = matRotation(matrix, 1, degtorad(angle));
-	for(int l = 1; l < currentSettings->zMinMax[1] / currentSettings->layerHeight; l++)
-		matrix[0] = mergeLayers(matrix[0], matrix[l]);
-	printLayer(matrix , 0);
+	static char **layer = 0;
+	static char	***inter = 0;
+	int layers = currentSettings->max;
+	if (!layer) {
+		layer = allocateLayer(layers);
+		inter = allocateMatrix(layers);
+	}
+	if (!matrix) {
+		freeMatrix(inter, layers);
+		freeLayer(layer, layers);
+		return 0;
+	}
+	matRotation(matrix, inter, projection, 1, degtorad(angle), 0);
+	char ***result = matRotation(inter, 0, projection, 0, degtorad(angle), layers);
+	clearLayer(layer);
+	for(int l = 0; l < layers; l++) {
+		mergeLayers(layer, result[l], l);
+	}
+	printLayer(&layer, 0);
 	return (0);
 }
 
-int main(int argc, char *argv[]) 
+int main(int argc, char *argv[])
 {
 	FILE *file = NULL;
 	char ***matrix = NULL;
 
-	currentSettings = malloc(sizeof(settings));
+	currentSettings = &(settings){0};
 	if (validateInput(argc, argv, &file))
 		return (1);
-	if (file != 0)
-		matrix = readAllLines(&file);
-	else
+	if (file == 0)
 	{
 		printf("Error reading file.");
 		return (1);
 	}
-	while (1)
+	matrix = readAllLines(&file);
+	fclose(file);
+	int iters = 2;
+	double projection_buff[3][3] = {{0}};
+	while (iters--)
 		for (int i = 0; i < 360; i++)
-			output(matrix, i);
+			output(matrix, &projection_buff, i);
+	matRotation(0, 0, 0, 0, 0, 0);
+	output(0, 0, 0);
+	freeMatrix(matrix, 0);
 	// printf("%s", getShadeByPoint(20));
 	//printf("\u258A\n");
 	return (0);
@@ -427,7 +490,7 @@ int main(int argc, char *argv[])
 // 	}
 // 	//matrix = matRotation(matrix, 0, degtorad(angle));
 // 	matrix = matRotation(matrix, 1, degtorad(angle));
-// 	for(int l = 1; l < currentSettings->zMinMax[1] / currentSettings->layerHeight; l++)
+// 	for(int l = 1; l < currentSettings->zMinMax[1]; l++)
 // 		matrix[0] = mergeLayers(matrix[0], matrix[l]);
 // 	system(CLEAR);
 // 	printLayer(matrix , 0);
@@ -446,8 +509,8 @@ int main(int argc, char *argv[])
 //           |,-`.    `.)    ,<_,-'_, pulmonary
 //          ,'    `.   /   ,'  `;-' _,  veins
 //         ;        `./   /`,    \-'
-//         | right   /   |  ;\   |\
-//         | atrium ;_,._|_,  `, ' \
+//         | right   /   |  ;\   |\`
+//         | atrium ;_,._|_,  `, ' \`
 //         |        \    \ `       `,
 //         `      __ `    \   left  ;,
 //          \   ,'  `      \,  ventricle
@@ -463,7 +526,7 @@ int main(int argc, char *argv[])
 //print result
 
 		//not working
-		// for(int l = 1; l <= ((currentSettings->zMinMax[1] / currentSettings->layerHeight) / rateo) - 1; l++)
+		// for(int l = 1; l <= ((currentSettings->zMinMax[1]) / rateo) - 1; l++)
 		// 			matrix[0] = mergeLayers(matrix[0], matrix[l], currentSettings, rateo);
 		/////////////
 

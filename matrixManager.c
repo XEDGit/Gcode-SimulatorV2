@@ -16,44 +16,49 @@ double	degtorad(int deg)
 	return (rad);
 }
 
-double	*distToCenter(int x, int y, int z)
+point	distToCenter(int x, int y, int z)
 {
-	double	zaxis = (currentSettings->zMinMax[1] / currentSettings->layerHeight) / 2;
-	double	yaxis = ((currentSettings->yMinMax[1] / rateo)) / 2;
-	double	xaxis = ((currentSettings->xMinMax[1] / rateo)) / 2;
-	double	*p = malloc(sizeof(double) * 3);
-	p[0] = x - xaxis;
-	p[2] = y - yaxis;
-	p[1] = z - zaxis;
+	double	zaxis = (currentSettings->zMinMax[1]) / 2;
+	double	yaxis = currentSettings->yMinMax[1] / 2;
+	double	xaxis = currentSettings->xMinMax[1] / 2;
+	point	p = {
+		x - xaxis,
+		y - yaxis,
+		z - zaxis,
+		0
+	};
 	return (p);
 }
 
-point	*findPointInMatrix(double *pt)
+point	findPointInMatrix(point *pt)
 {
-	double	zaxis = (currentSettings->zMinMax[1] / currentSettings->layerHeight) / 2;
-	double	yaxis = ((currentSettings->yMinMax[1] / rateo)) / 2;
-	double	xaxis = ((currentSettings->xMinMax[1] / rateo)) / 2;
-	point	*p = malloc(sizeof(point));
-	p->x = (int) pt[0] + xaxis;
-	p->y = (int) pt[2] + yaxis;
-	p->z = (int) pt[1] + zaxis;
-	p->mode = 0;
-	return (p);
+	double	zaxis = (currentSettings->zMinMax[1]) / 2;
+	double	yaxis = currentSettings->yMinMax[1] / 2;
+	double	xaxis = currentSettings->xMinMax[1] / 2;
+	
+	return ((point){
+		roundFloat(pt->x + xaxis),
+		roundFloat(pt->y + yaxis),
+		roundFloat(pt->z + zaxis),
+		0
+	});
 }
 
-double	*matMul(double **projection, int size, double *pt)
+point matMul(double (*projection)[3], int size, point *pt)
 {
-	double *result = malloc(sizeof(double) * 3);
+	double result[3];
+	double ptarr[3] = {pt->x, pt->y, pt->z};
 
 	for (int i = 0; i < size; i++)
 	{
 		double temp = 0;
 		for (int j = 0; j < 3; j++)
-			{temp = temp + pt[j] * projection[i][j]; //printf(" y:	%d	->	%f	+=	%f\n", i, projection[i][j], pt[j] * projection[i][j]);
+			{
+				temp = temp + ptarr[j] * projection[i][j]; //printf(" y:	%d	->	%f	+=	%f\n", i, projection[i][j], pt[j] * projection[i][j]);
 			}
 		result[i] = temp;
 	}
-	return (result);
+	return ((point){result[0], result[1], result[2], 0});
 }
 
 int magnitute(int *vector )
@@ -110,55 +115,80 @@ int dotProduct(point *a, point *b)
 
 //axis:
 //	x:	2	|	z:	1	|	y:	0
-char	***matRotation(char ***matrix, int	axis, float angle)
+char ***	matRotation(char ***matrix, char ***res, double (*projection)[3][3], int	axis, float angle, int user_max)
 {
-	if(angle == 0)
-		return (matrix);
 
-	double	*origin;
-	double	*multiplied;
-	double	**projection;
-	point	*pos;
+	point		origin;
+	point		multiplied;
+	point		pos;
 
-	if(!lightSource)
-		lightSource = malloc(sizeof(point));
-	int		zaxis = currentSettings->zMinMax[1] / currentSettings->layerHeight;
-	int		yaxis = currentSettings->yMinMax[1] / rateo;
-	int		xaxis = currentSettings->xMinMax[1] / rateo;
-	char	***result = allocateMatrix();
+	int			max = currentSettings->max;
 
-	lightSource->x = 100 ;
-	lightSource->y = 100;
-	lightSource->z = zaxis;
-	for(int j = 0; j < zaxis; j++)
+	int offx = (max - currentSettings->xMinMax[1]) / 2,
+		offy = (max - currentSettings->yMinMax[1]) / 2,
+		offz = (max - currentSettings->zMinMax[1]) / 2,
+		maxx = currentSettings->xMinMax[1],
+		maxy = currentSettings->yMinMax[1],
+		maxz = currentSettings->zMinMax[1];
+
+	if (user_max) {
+		offx = offy = offz = 0;
+		maxx = maxy = maxz = max;
+	}
+
+	static char	***result = 0;
+	if (!result)
+		result = allocateMatrix(max);
+	if (!res)
+		res = result;
+	if (matrix == 0)
 	{
-		for(int k = 0; k < yaxis; k++)
+		freeMatrix(result, max);
+		return 0;
+	}
+
+	for(int j = 0; j < currentSettings->max; j++)
+		clearLayer(res[j]);
+	for(int j = 0; j < maxz; j++)
+	{
+		for(int k = 0; k < maxy; k++)
 		{
-			for(int i = 0; i < xaxis; i++)
+			for(int i = 0; i < maxx; i++)
 			{
 				if (!matrix[j][k][i])
 					continue;
 				origin = distToCenter(i, k, j);
 				// if (j == 1)
 				// 	printf("\noriginal	|	x: %d, y: %d, z: %d\n", i, k, j);
-				projection = rotationGen(angle, axis);
-				multiplied = matMul(projection, 3, origin);
+				rotationGen(projection, angle, axis);
+				multiplied = matMul(*projection, 3, &origin);
 				// if (j == 1)
 				// 	printf("multiplied	|	x: %f, y: %f, z: %f\n", multiplied[0], multiplied[1], multiplied[2]);
-				pos = findPointInMatrix(multiplied);
+				pos = findPointInMatrix(&multiplied);
 				// if (j == 1)
 				// 	printf("final		|	x: %d, y: %d, z: %d\n", pos->x, pos->y, pos->z);
 				//atan2(p1.y - p2.y, p1.x - p2.x)
 				//result[clampValue(pos->z, 2)][clampValue(pos->y, 1)][clampValue(pos->x, 0)] = (int) sqrt(pow(pos->x - lightSource->x ,2) + pow(pos->y - lightSource->y ,2) + pow(pos->z - lightSource->z ,2));
-				result[clampValue(pos->z, 2)][clampValue(pos->y, 1)][clampValue(pos->x, 0)] = dotProduct(lightSource, pos);
-				free(pos);
-				free(origin);
-				free2DF(projection);
-				free(multiplied);
+				pos.x += offx;
+				pos.y += offy;
+				pos.z += offz;
+				if (pos.x >= max)
+					pos.x = max - 1;
+				if (pos.y >= max)
+					pos.y = max - 1;
+				if (pos.z >= max)
+					pos.z = max - 1;
+				if (pos.x < 0)
+					pos.x = 0;
+				if (pos.y < 0)
+					pos.y = 0;
+				if (pos.z < 0)
+					pos.z = 0;
+				res[pos.z][pos.y][pos.x] = 1;
 			}
 		}
 	}
-	return (result);
+	return (res);
 }
 
 double	**allocate2DF()
@@ -184,36 +214,35 @@ void	free2DF(double **p)
 
 //axis:
 //	x:	2	|	z:	1	|	y:	0
-double	**rotationGen(float angle, int axis)
+void rotationGen(double (*result)[3][3], float angle, int axis)
 {
-	double			**result;
-
 	// if (lastAngle == angle && lastAxis == axis && !firstRotation)
 	// 	return (stored);
-	result = allocate2DF();
+	for (int i = 0; i < 3; i++)
+		for (int j = 0; j < 3; j++)
+			(*result)[i][j] = 0;
 	if (!axis)
 	{
-		result[0][0] = cos(angle);
-		result[0][1] = sin(angle) * -1;
-		result[1][0] = sin(angle);
-		result[1][1] = cos(angle);
-		result[2][2] = 1;
+		(*result)[0][0] = cos(angle);
+		(*result)[0][1] = sin(angle) * -1;
+		(*result)[1][0] = sin(angle);
+		(*result)[1][1] = cos(angle);
+		(*result)[2][2] = 1;
 	}
 	else if (axis == 1)
 	{
-		result[0][0] = cos(angle);
-		result[0][2] = sin(angle);
-		result[1][1] = 1;
-		result[2][0] = sin(angle) * -1;
-		result[2][2] = cos(angle);
+		(*result)[0][0] = cos(angle);
+		(*result)[0][2] = sin(angle);
+		(*result)[1][1] = 1;
+		(*result)[2][0] = sin(angle) * -1;
+		(*result)[2][2] = cos(angle);
 	}
 	else
 	{
-		result[0][0] = 1;
-		result[1][1] = cos(angle);
-		result[1][2] = sin(angle) * -1;
-		result[2][1] = sin(angle);
-		result[2][2] = cos(angle);
+		(*result)[0][0] = 1;
+		(*result)[1][1] = cos(angle);
+		(*result)[1][2] = sin(angle) * -1;
+		(*result)[2][1] = sin(angle);
+		(*result)[2][2] = cos(angle);
 	}
-	return (result);
 }
